@@ -15,13 +15,40 @@ export default function home(){
 
             <main>
                 <section className="flex justify-evenly items-center bg-black ">
-                    <a className="flex box-border  p-4 border-4 rounded item-center bg-white">
-                        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    <a/>
+                    
+                    <a className=" flex-none box-border p-12 border-4 box-content h-32 w-[600px] rounded text-center justify-center item-center bg-white">
+                        
+                        <span>나만의 노래책 만들기</span>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                    
+                        <div className="items-center py-2 px-3 z-8 border-2 border-neutral-500 rounded transition-colors hover:bg-neutral-700 ">
+                            <span className="text-sm md:text-base"> 검색창 </span>
+                        </div>
+
+                    
                     </a>
 
-                    <a className="flex box-border h-32 w-32 p-4 border-4 rounded item-center bg-white">
-                        B
+                    <a className=" flex-none box-border p-12 border-4 box-content h-32 w-[600px] rounded text-center justify-center item-center bg-white">
+                        
+                        <span>나만의 노래책 만들기</span>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                    
+                        <div className="items-center py-2 px-3 z-8 border-2 border-neutral-500 rounded transition-colors hover:bg-neutral-700 ">
+                            <span className="text-sm md:text-base"> 검색창 </span>
+                        </div>
+
+                    
                     </a>
+
+                    <a/>
+                    
                 </section>
 
                 <div>
