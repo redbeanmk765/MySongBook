@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 export default function test(){
     return( 
         <main>
+            <Header />
             <div>
                 <h1> test page </h1>
             </div>
