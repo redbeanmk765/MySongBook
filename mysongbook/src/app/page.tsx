@@ -1,15 +1,12 @@
 import Link from "next/link";
 import Header from "../components/Header";
+import './globals.css'
 
 export default function home(){
     return(
       <html>
         <head>
-
-
-        </head> 
-
-        
+        </head>        
         <body>
             <Header />
 
@@ -27,7 +24,7 @@ export default function home(){
                 <section className="flex justify-evenly items-center bg-black ">
                     <div/>
                     
-                    <div className=" flex-none box-border p-12 border-4 box-content h-32 w-[500px] rounded text-center justify-center item-center bg-white">
+                    <div className=" flex-none box-border p-12 border-4 h-60 w-[500px] rounded text-center justify-center item-center bg-white">
                         
                         <span>나만의 노래책 만들기</span>
                         <br/>
@@ -43,7 +40,7 @@ export default function home(){
                     </div >
 
                     <div className=" flex-none box-border p-12 border-4 box-content h-32 w-[500px] rounded text-center justify-center item-center bg-white">
-                        
+                            
                         <span>다른이의 노래책 구경하기</span>
                         <br/>
                         <br/>
@@ -71,5 +68,6 @@ export default function home(){
               
         </body>
       </html>
+      
     );
 }
