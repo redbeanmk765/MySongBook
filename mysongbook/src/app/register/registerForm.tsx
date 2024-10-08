@@ -5,8 +5,12 @@ import { DevTool } from "@hookform/devtools";
 import { ErrorMessage } from "@hookform/error-message";
 
 export type HookFormTypes = {
+    ID : string;
     email: string;
     password: string;
+    passwordCheck : string;
+    nickName : string;
+    
   }
   
   export default function HookForm(){
