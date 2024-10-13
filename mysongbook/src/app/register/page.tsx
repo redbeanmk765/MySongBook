@@ -17,14 +17,14 @@ export default function register(){
     <main>
         <Header />
 
-        <section id="title" className="flex justify-center">
+        <section id="title" className="flex justify-start container mx-auto px-4">
             <div className="flex justify-start bg-white lg:w-[1410px]">
                 <a className="px-4"> 회원가입 </a>
             </div>
             
         </section>
 
-        <section id="registerForm" className="flex justify-center">
+        <section id="title" className="flex justify-start container mx-auto px-4">
             <div className="flex justify-start bg-white lg:w-[1410px]">
                 <HookForm />
               
