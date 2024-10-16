@@ -6,6 +6,7 @@ export default function home(){
     return(
       <html>
         <head>
+                
         </head>        
         <body>
             <Header />
