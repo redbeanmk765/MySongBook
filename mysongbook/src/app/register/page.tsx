@@ -18,7 +18,7 @@ export default function register(){
 
                 <section id="title" className="flex justify-center bg-gray-100 h-24" >
                     <div className="flex container items-center justify-start lg:w-[1520px] px-8">
-                        <a className="px-4 inline-block vertical-align-middle "> 회원가입 </a>
+                        <a className="px-4 inline-block vertical-align-middle text-xl font-bold "> 회원가입 </a>
                     </div>
                     
                 </section>
@@ -30,14 +30,6 @@ export default function register(){
                     </div>
                     
                 </section>
-
-                <div>
-                    <nav>
-                        <Link href="/">홈 </Link>
-                        <Link href="/test">test</Link>
-
-                    </nav>
-                </div>
                 
             </main>
         </body>

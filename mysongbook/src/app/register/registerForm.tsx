@@ -144,7 +144,7 @@ export type HookFormTypes = {
         
           
           
-          <input type="submit" value="회원가입" className="rounded border-2 border-red-500 hover:bg-red-500 hover:text-white py-2 px-4 " />
+          <input type="submit" value="회원 가입" className="rounded border-2 text-sm font-bold text-red-500 border-red-500 hover:bg-red-500 hover:text-white py-3 px-5 " />
 
     
 
