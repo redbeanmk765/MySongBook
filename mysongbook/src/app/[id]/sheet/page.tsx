@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import {produce} from 'immer';
+import { spawn } from "child_process";
 
 type rowData = {
     id : number;
@@ -13,15 +14,20 @@ type rowData = {
     memo : string;
 }
 
-function Row({ data, handleAddData, handleUpdate, handleDelete}: {
+function Row({ data, handleAddData, handleUpdate, handleDelete, editingCell, setEditingCell}: {
   data: rowData, handleAddData:(newData: rowData) => void,
   handleUpdate:(id:number, updatedData: Partial<rowData>) => void,
-  handleDelete:(id:number) => void,}) {
+  handleDelete:(id:number) => void,
+  editingCell: { rowId: number, field: keyof rowData } | null,
+  setEditingCell: React.Dispatch<React.SetStateAction<{ rowId: number, field: keyof rowData } | null>>}) { 
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedData, setEditedData] = useState(data);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState(data);
+
+  
+
+  
     
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedData({
       ...editedData,
@@ -44,58 +50,106 @@ function Row({ data, handleAddData, handleUpdate, handleDelete}: {
     setIsEditing(false);
   };
 
- 
 
 
  function GenerateTd({ fieldName }: { fieldName: keyof rowData}){  
-    const [isEditing2, setIsEditing2] = useState(false);
+    const isEditingTd = editingCell?.rowId === data.id && editingCell.field === fieldName;
     let nameString = fieldName as string;
+    
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleEditMode2 = () => {
-      // 수정된 데이터를 서버에 저장하거나 다른 로직 실행
-      console.log("test");
-      setIsEditing2(true); 
-    };
+    const handleFocusTd = () => {
+      //setEditingCell({ rowId: data.id, field: fieldName });
+
+    };  
+
+    const handleClickTd = () => {
+      //console.log("click :" , data.id , "fieldName:", fieldName, "editingCell:", editingCell); 
+      setEditingCell({ rowId: data.id, field: fieldName });
+    }
 
     useEffect(() => {
-      if (isEditing2 && inputRef.current) {
-          inputRef.current.focus();
-      }
-    }, [isEditing2]);
+      if(
+        editingCell?.rowId === data.id &&
+        editingCell.field === fieldName &&
+        inputRef.current
+        ) {
+         inputRef.current.focus();
+        }
 
-    const handleBlur = ((event: React.ChangeEvent<HTMLInputElement>) => {
+      if (editingCell === null) {
+       //console.log("focus 해제 후 실행!");
+      } 
+    }, [editingCell]);
+    
+    
+
+    const handleBlur = ((event: React.FocusEvent<HTMLInputElement>) => {
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+
+      if (
+        relatedTarget &&
+        relatedTarget.hasAttribute("data-id") &&
+        relatedTarget.hasAttribute("data-field")
+      ) {
+      const rowId = Number(relatedTarget.getAttribute("data-id"));
+      const field = relatedTarget.getAttribute("data-field") as keyof rowData;
+      setEditingCell({ rowId, field });
+      } else{
+        setEditingCell(null);
+      }
+
       handleChange(event);
-      setIsEditing2(false);
-      handleUpdate(data.id,{ [fieldName]: event.target.value});
+      handleUpdate(data.id,{ [fieldName]: event.target.value}); 
+      
+      //console.log("focus :" , data.id, event.target.value, "isEditingTd:", isEditingTd); 
+      //console.log("newFocus :", event.relatedTarget);
     });
 
     const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-      setEditedData({
-        ...editedData,
-        [event.target.name]: event.target.value
-      });
-      if (isEditing2 && inputRef.current) {
-        inputRef.current.focus();
-      }
+      const { name, value } = event.target;
+      setEditedData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }, []);
+
+    const spanRef = useRef<HTMLSpanElement>(null);
+    const [spanWidth, setSpanWidth] = useState<number | null>(null);
+
+    useEffect(() => {
+      //console.log("spanRef.current:", spanRef.current);
+      if (!isEditingTd && spanRef.current) {
+        setSpanWidth(spanRef.current.offsetWidth); 
+        console.log("spanWidth:", spanRef.current.offsetWidth);
+      }
+    }, [isEditingTd, editedData[fieldName]]);
     
     return (
-      <td className="border-r w-32 text-left py-2 h-[37px]">
-        {isEditing2 ? (
+      <td className="border-r w-32 text-left py-2 h-[37px] overflow-hidden whitespace-nowrap text-ellipsisce">
+        {isEditingTd ? (
           <input
-          
             type = "text"
             name = {nameString}
-            defaultValue={editedData[fieldName]}
-            // onChange={handleChange}
+            defaultValue={editedData[fieldName] ?? ""}
+            //onChange={handleChange}
             onBlur={handleBlur}
+            key={`${data.id}-${fieldName}`}
             ref={inputRef}
+            style={spanWidth ? { width: spanWidth } : undefined}
+            //ㄴonClick={handleClickTd}
             className="border-r w-full text-left pl-4 py-2 h-[30px]"
-            
           />
         ) : (
-          <span className="flex w-full text-left pl-4 h-[20px]" onClick={handleEditMode2}>{editedData[fieldName] }</span>
+          <span 
+            className="flex w-full text-left pl-4 h-[20px]" 
+            data-id={data.id}
+            data-field={fieldName}
+            tabIndex={0}
+            onFocusCapture={handleClickTd} 
+          >
+            {editedData[fieldName] }
+          </span>
         )}
       </td>
     );
@@ -110,7 +164,7 @@ function Row({ data, handleAddData, handleUpdate, handleDelete}: {
           <GenerateTd fieldName = {"name" as keyof rowData}/>
           <GenerateTd fieldName = {"memo" as keyof rowData}/>
           <td className="pl-[15px] pt-[3px]">
-            <button className="relative w-8 h-8 bg-white rounded-full hover:bg-gray-200 focus:outline-none"
+            <button className="relative w-8 h-8 z-0 bg-white rounded-full hover:bg-gray-200 focus:outline-none"
                     onClick={() => handleDelete(data.id)}>
                 <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-0.5 bg-black rotate-45"></span>
                 <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-0.5 bg-black -rotate-45"></span>
@@ -138,16 +192,30 @@ function Row({ data, handleAddData, handleUpdate, handleDelete}: {
 export default function sheet(){
     const origin: rowData[] = [
       {id : 1, tag : "K", singer: "BTS", name: "Dynamite", memo: "TEST"},
-      {id : 2, tag : "K2", singer: "BTS2", name: "Dynamite2", memo: "TEST2"}
+      {id : 2, tag : "K", singer: "BTS2", name: "好きだから", memo: "TEST2"},
+      {id : 3, tag : "K", singer: "tt", name: "123123", memo: "yesy"},
+      {id : 4, tag : "K", singer: "가나다", name: "가나다", memo: "가나다"},
+      {id : 5, tag : "K", singer: "BTS", name: "Dynamite", memo: "TEST"},
+      {id : 6, tag : "K", singer: "BTS2", name: "好きだから", memo: "TEST2"},
+      {id : 7, tag : "K", singer: "tt", name: "123123", memo: "yesy"},
+      {id : 8, tag : "K", singer: "가나다", name: "가나다", memo: "가나다"},
+      {id : 9, tag : "K", singer: "BTS", name: "Dynamite", memo: "TEST"},
+      {id : 10, tag : "K", singer: "BTS2", name: "好きだから", memo: "TEST2"},
+      {id : 11, tag : "K", singer: "tt", name: "123123", memo: "yesy"},
+      {id : 12, tag : "K", singer: "가나다", name: "가나다", memo: "가나다"},
+      {id : 13, tag : "K", singer: "BTS", name: "Dynamite", memo: "TEST"},
+      {id : 14, tag : "K", singer: "BTS2", name: "好きだから", memo: "TEST2"},
+      {id : 15, tag : "K", singer: "tt", name: "123123", memo: "yesy"},
+      {id : 16, tag : "K", singer: "가나다", name: "가나다", memo: "가나다"},
     ]
 
-    const newData2: rowData = (
-        {id : 4, tag : "K", singer: "BTS", name: "Dynamite", memo: "TEST"}
-    )
-
-
     const [data, setData] = useState<rowData[]>(origin);
-    const [max, setMax] = useState(2);
+    const [max, setMax] = useState(4);
+
+    const tagList = Array.from(new Set(data.map(item => item.tag)));
+
+    const [editingCell, setEditingCell] = useState<{ rowId: number, field: keyof rowData } | null>(null);
+    
 
     const handleAddData = (newData: rowData) => {
         setData([...data, newData]); // 기존 데이터에 새로운 데이터 추가
@@ -192,7 +260,7 @@ export default function sheet(){
       );
     };
 
-    const [sortKey, setSortKey] = useState<keyof rowData | null>(null);
+    const [sortKey, setSortKey] = useState<keyof rowData | null>("tag");
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     const sortedData = useMemo(() => {
@@ -201,15 +269,28 @@ export default function sheet(){
       return [...data].sort((a, b) => {
           const aValue = a[sortKey];
           const bValue = b[sortKey];
-  
-          if (typeof aValue === 'string' && typeof bValue === 'string') {
-              const comparison = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' }); // 숫자 포함 문자열 정렬
-              return sortDirection === 'asc' ? comparison : -comparison;
-          } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-              return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
-          } else {
-              return 0; // 다른 타입의 경우 정렬하지 않음
-          }
+
+        // 빈 문자열 우선 처리
+        const aIsEmpty = aValue === "";
+        const bIsEmpty = bValue === "";
+
+        if (aIsEmpty && !bIsEmpty) return 1;   // a가 빈 문자열이면 b보다 뒤로
+        if (!aIsEmpty && bIsEmpty) return -1;  // b가 빈 문자열이면 a가 앞으로
+      
+          let primaryCompare = 0;
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          primaryCompare = aValue.localeCompare(bValue, "en", { numeric: true, sensitivity: 'base' });
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+          primaryCompare = aValue - bValue;
+        }
+
+        if (primaryCompare !== 0) {
+          return sortDirection === 'asc' ? primaryCompare : -primaryCompare;
+        }
+
+        // 2순위: name (고정)
+        const nameCompare = a.name.localeCompare(b.name, "ko", { numeric: true, sensitivity: 'base' });
+        return sortDirection === 'asc' ? nameCompare : -nameCompare;
       });
     }, [data, sortKey, sortDirection]);
 
@@ -223,7 +304,7 @@ export default function sheet(){
     };
 
       
-    
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
     
 
     return( 
@@ -235,20 +316,38 @@ export default function sheet(){
                 <main>
                     <Header/>
 
-                    <section id="table" className="flex justify-center  bg-white " >
+                    
+
+                    {/* <button onClick={() => setSelectedTag(null)}>전체</button>
+                      {tagList.map(tag => (
+                        <button key={tag} onClick={() => setSelectedTag(tag)}>
+                          {tag}
+                        </button>
+                      ))} */}
+                    <section id="table" className="flex justify-center lg:px-20 md:px-8 sm:px-2 bg-white border-r" >
                         <table className="table-fixed ">
-                            <thead>
-                                <tr className="border-b-4 bg-gray-300">
-                                    <th scope="col" className="border-r w-32 text-left pl-4 py-2" >태그</th>
-                                    <th scope="col" className="border-r w-52 text-left pl-4">원곡자</th>
-                                    <th scope="col" className="border-r w-[678px] text-left pl-4" >제목</th>
-                                    <th scope="col" className="border-r w-[512px] text-left pl-4">메모</th>
-                                    <th scope="col" className="w-[60px] text-left pl-4">삭제</th>
+                            <thead className="sticky md:top-[96px] sm:top-[64px] z-10 bg-blue-100">
+                                <tr className="sticky z-10 border-b-4 bg-gray-300">
+                                    <th scope="col" className="sticky z-20 border-r w-32 text-left pl-4 py-2" >태그</th>
+                                    <th scope="col" className="sticky z-20 border-r w-52 text-left pl-4">원곡자</th>
+                                    <th scope="col" className="sticky z-20 border-r w-[678px] text-left pl-4" >제목</th>
+                                    <th scope="col" className="sticky z-20 border-r w-[512px] text-left pl-4">메모</th>
+                                    <th scope="col" className="sticky z-20 w-[60px] z-10 text-left pl-4">삭제</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {data.map((item) => (
-                                    <Row key={item.id} data={item} handleAddData={handleAddData} handleUpdate={handleUpdate} handleDelete={handleDelete}/>
+                            <tbody>                                                      
+                                {sortedData
+                                  .filter(item => !selectedTag || item.tag === selectedTag)
+                                  .map(item => (
+                                    <Row 
+                                      key={item.id} 
+                                      data={item} 
+                                      handleAddData={handleAddData} 
+                                      handleUpdate={handleUpdate} 
+                                      handleDelete={handleDelete} 
+                                      editingCell={editingCell}
+                                      setEditingCell={setEditingCell}
+                                    />
                                 ))}
                             </tbody>
                         </table>
@@ -257,11 +356,11 @@ export default function sheet(){
                       <button onClick={() => handleAddData(createBlankData())}>빈 데이터 추가</button> 
                     </section>
 
-                    <button onClick={() => handleAddData(newData2)}>데이터 추가</button>
+                    <button onClick={() => handleAddData(createBlankData())}>데이터 추가</button>
                     <button onClick={() => handleAddData(createBlankData())}>빈 데이터 추가</button>  
                     <button onClick={() => handleUpdate(1, { memo: 'Updated memo' })}>데이터 변경</button>
-                    <button onClick={() => console.log(data)}>데이터 확인</button>
-      
+                    <button onClick={() => console.log(sortedData, "focus :" , editingCell)}>데이터 확인</button>
+                    <button onClick={() => setEditingCell({ rowId: 2, field: "singer" })}>  포커스 확인</button>
 
                 </main>
             </body>
