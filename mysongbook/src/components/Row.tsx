@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { RowData } from "@/types/RowData";
+import { TagColorMap } from "@/types/TagColor";
 import GenerateTd from "./GenerateTd";
 
 interface RowProps {
@@ -8,6 +9,8 @@ interface RowProps {
   handleDelete: (id: number) => void;
   editingCell: { rowId: number; field: keyof RowData } | null;
   setEditingCell: React.Dispatch<React.SetStateAction<{ rowId: number; field: keyof RowData } | null>>;
+  customTagColors: TagColorMap;
+  tagList?: string[];
 }
 
 export default function Row({
@@ -16,6 +19,8 @@ export default function Row({
   handleDelete,
   editingCell,
   setEditingCell,
+  customTagColors,
+  tagList= [],
 }: RowProps) {
   const [editedData, setEditedData] = useState<RowData>(data);
 
@@ -33,6 +38,8 @@ export default function Row({
         editedData={editedData}
         setEditedData={setEditedData}
         handleUpdate={handleUpdate}
+        customTagColors={customTagColors}
+        tagList={tagList}
       />
       <GenerateTd
         data={data}
@@ -42,6 +49,7 @@ export default function Row({
         editedData={editedData}
         setEditedData={setEditedData}
         handleUpdate={handleUpdate}
+        customTagColors={customTagColors}
       />
       <GenerateTd
         data={data}
@@ -51,6 +59,7 @@ export default function Row({
         editedData={editedData}
         setEditedData={setEditedData}
         handleUpdate={handleUpdate}
+        customTagColors={customTagColors}
       />
       <GenerateTd
         data={data}
@@ -60,8 +69,9 @@ export default function Row({
         editedData={editedData}
         setEditedData={setEditedData}
         handleUpdate={handleUpdate}
+        customTagColors={customTagColors}
       />
-      <td className="pl-[15px] pt-[3px]">
+      <td className="flex items-center pl-[15px] h-[38px]">
         <button
           className="relative w-8 h-8 z-0 bg-white rounded-full hover:bg-gray-200 focus:outline-none"
           onClick={() => handleDelete(data.id)}

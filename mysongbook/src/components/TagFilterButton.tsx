@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { BarsArrowDownIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
 
 interface TagFilterButtonProps {
   tagList: string[];
@@ -7,35 +8,39 @@ interface TagFilterButtonProps {
 }
 
 export default function TagFilterButton({ tagList, selectedTag, setSelectedTag }: TagFilterButtonProps) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    function handleClickOutSide(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
     }
-    if (open) document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutSide);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    }
+  }, [isOpen]);
 
   return (
     <div
       ref={ref}
-      className={`inline-flex items-center relative cursor-pointer px-2 py-1 rounded ${open ? "bg-gray-200" : ""} hover:bg-gray-100`}
-      onClick={() => setOpen(open => !open)}
+      className={`block min-w-0 max-w-28 flex justify-center items-center relative cursor-pointer pl-2 py-1 rounded ${isOpen ? "bg-gray-200" : ""} hover:bg-gray-100`}
+      onClick={() => setIsOpen(open => !open)}
       tabIndex={0}
     >
-      <span>{selectedTag === null ? '전체' : selectedTag}</span>
-      <span className="ml-1">▼</span>
-      {open && (
+      <span className="inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis">{selectedTag === null ? '전체' : selectedTag}</span>
+      <span className="w-5 h-5"> <BarsArrowDownIcon className="w-5 h-5 text-gray-700" /> </span>
+      {isOpen && (
         <div className="absolute left-0 top-full z-10 w-28 max-h-48 overflow-y-auto bg-white border shadow mt-1">
           <div
             className={`px-4 py-2 cursor-pointer ${selectedTag === null ? "bg-blue-100" : ""}`}
             onClick={e => {
               e.stopPropagation();
               setSelectedTag(null);
-              setOpen(false);
+              setIsOpen(false);
             }}
           >
             전체
@@ -47,14 +52,24 @@ export default function TagFilterButton({ tagList, selectedTag, setSelectedTag }
               onClick={e => {
                 e.stopPropagation();
                 setSelectedTag(tag);
-                setOpen(false);
+                setIsOpen(false);
               }}
             >
               {tag}
             </div>
           ))}
+          
         </div>
       )}
     </div>
   );
 }
+
+{/* <div className="px-4 py-2 cursor-pointer" 
+          onClick={e => {
+            e.stopPropagation();
+            setOpen(false);
+            setSelectedTag(null);
+          }}>
+           태그 추가
+          </div> */}
