@@ -10,7 +10,7 @@ import Row from "@/components/Row";
 import TagFilterButton from "@/components/TagFilterButton";
 import { ChevronUpIcon, ChevronDownIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { UserRound, CaseSensitive } from "lucide-react";
-//import TagColorSettings from "@/components/TagColorSettings";
+
 
 interface ChangeLog {
   id: number;
@@ -99,7 +99,7 @@ export default function sheet() {
 
     setUndoStack((prev) => [
       ...prev,
-      { id, type: "delete", previous: target }
+      { id, type: "delete", prevRow: target }
     ]);
     setRedoStack([]);
   
@@ -236,13 +236,14 @@ export default function sheet() {
                   tagList={tagList}
                   selectedTag={selectedTag}
                   setSelectedTag={setSelectedTag}
-                /></th>
+                /> 
+                </th>
               <th scope="col" className="sticky z-20 border-r w-52 text-left pl-2 pr-2"
                 onClick={() => handleSort("singer")}> 
                 <div className="flex items-center justify-between min-w-0 overflow-hidden cursor-pointer hover:bg-gray-100 pl-2 py-1 rounded">
                   <span className="truncate inline-flex items-center gap-2 leading-none">
                     가수 
-                    <UserRound className="w-5 h-5 text-gray-700 " />
+                    <UserRound className="w-4 h-4 text-gray-700 " />
                   </span>
                     <span className="w-5 h-5">
                       {sortKey === "singer" && (
@@ -260,7 +261,7 @@ export default function sheet() {
                 <div className="flex items-center justify-between min-w-0 overflow-hidden cursor-pointer hover:bg-gray-100 pl-2 py-1 rounded">
                   <span className="truncate inline-flex items-center gap-2 leading-none">
                     제목 
-                    <CaseSensitive  className="w-7 h-7 relative top-[2px] text-gray-700 " />
+                    <CaseSensitive  className="w-6 h-6 relative top-[1.5px] text-gray-700 " />
                   </span>
                     <span className="w-5 h-5">
                       {sortKey === "name" && (
@@ -276,7 +277,7 @@ export default function sheet() {
               <th scope="col" className="sticky z-20 border-r w-[512px] text-left pl-2 pr-2"
                 onClick={() => handleSort("memo")}>
                 <div className="flex items-center justify-between min-w-0 overflow-hidden cursor-pointer hover:bg-gray-100 pl-2 py-1 rounded">             
-                <span className="truncate inline-flex items-center gap-2">  메모 <PencilIcon className="w-4 h-4 text-gray-700" /> </span>
+                <span className="truncate inline-flex items-center gap-2">  메모 <PencilIcon className="w-3 h-3 text-gray-700" /> </span>
                   <span className="w-5 h-5">
                     {sortKey === "memo" && (
                       sortDirection === "asc" ? (
