@@ -1,21 +1,16 @@
 // components/TagColorSettingsModal.tsx
 import React from "react";
 import ReactDOM from "react-dom";
-import { TagColorMap, defaultTagColors } from "@/types/TagColor";
+import { useTagColorStore } from '@/stores/tagColorStore';
 
 interface TagColorSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tagColors: TagColorMap;
-  onTagColorsChange: (colors: TagColorMap) => void;
 }
 
-export default function TagColorSettingsModal({
-  isOpen,
-  onClose,
-  tagColors,
-  onTagColorsChange,
-}: TagColorSettingsModalProps) {
+export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSettingsModalProps) {
+  const { tagColors, setTagColor, setTagColors } = useTagColorStore();
+
   if (!isOpen) return null;
 
   const handleColorChange = (tag: string, field: "backgroundColor" | "textColor", value: string) => {
@@ -26,24 +21,15 @@ export default function TagColorSettingsModal({
         [field]: value,
       },
     };
-    onTagColorsChange(updatedColors);
+    setTagColors(updatedColors);
   };
 
-  const resetToDefault = () => {
-    onTagColorsChange(defaultTagColors);
-  };
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">태그 설정</h3>
-          <button
-            onClick={resetToDefault}
-            className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
-          >
-            기본값으로 초기화
-          </button>
         </div>
 
         <div className="space-y-3 max-h-96 overflow-y-auto">

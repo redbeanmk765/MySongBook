@@ -29,7 +29,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
-    "recoil": "^0.7.7"
+    "recoil": "^0.7.7",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@hookform/devtools": "^4.3.1",

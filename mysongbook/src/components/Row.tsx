@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { RowData } from "@/types/RowData";
-import { TagColorMap } from "@/types/TagColor";
 import GenerateTd from "./GenerateTd";
+import { useSheetStore } from "@/stores/sheetStore";
+import { useTagColorStore } from '@/stores/tagColorStore';
 
 interface RowProps {
   data: RowData;
-  handleUpdate: (id: number, updatedData: Partial<RowData>) => void;
-  handleDelete: (id: number) => void;
-  editingCell: { rowId: number; field: keyof RowData } | null;
-  setEditingCell: React.Dispatch<React.SetStateAction<{ rowId: number; field: keyof RowData } | null>>;
-  customTagColors: TagColorMap;
   tagList?: string[];
 }
 
 export default function Row({
   data,
-  handleUpdate,
-  handleDelete,
-  editingCell,
-  setEditingCell,
-  customTagColors,
-  tagList= [],
+  tagList = [],
 }: RowProps) {
+  const { editingCell, setEditingCell, updateRow, deleteRow } = useSheetStore();
   const [editedData, setEditedData] = useState<RowData>(data);
 
   useEffect(() => {
@@ -37,8 +29,7 @@ export default function Row({
         setEditingCell={setEditingCell}
         editedData={editedData}
         setEditedData={setEditedData}
-        handleUpdate={handleUpdate}
-        customTagColors={customTagColors}
+        handleUpdate={updateRow}
         tagList={tagList}
       />
       <GenerateTd
@@ -48,8 +39,7 @@ export default function Row({
         setEditingCell={setEditingCell}
         editedData={editedData}
         setEditedData={setEditedData}
-        handleUpdate={handleUpdate}
-        customTagColors={customTagColors}
+        handleUpdate={updateRow}
       />
       <GenerateTd
         data={data}
@@ -58,8 +48,7 @@ export default function Row({
         setEditingCell={setEditingCell}
         editedData={editedData}
         setEditedData={setEditedData}
-        handleUpdate={handleUpdate}
-        customTagColors={customTagColors}
+        handleUpdate={updateRow}
       />
       <GenerateTd
         data={data}
@@ -68,13 +57,12 @@ export default function Row({
         setEditingCell={setEditingCell}
         editedData={editedData}
         setEditedData={setEditedData}
-        handleUpdate={handleUpdate}
-        customTagColors={customTagColors}
+        handleUpdate={updateRow}
       />
       <td className="flex items-center pl-[15px] h-[38px]">
         <button
           className="relative w-8 h-8 z-0 bg-white rounded-full hover:bg-gray-200 focus:outline-none"
-          onClick={() => handleDelete(data.id)}
+          onClick={() => deleteRow(data.id)}
         >
           <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-0.5 bg-black rotate-45"></span>
           <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-0.5 bg-black -rotate-45"></span>
