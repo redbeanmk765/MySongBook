@@ -52,7 +52,7 @@ export default function TagFilterButton({
       <span className="w-5 h-5"> <BarsArrowDownIcon className="w-5 h-5 text-gray-700" /> </span>
        
       {isOpen && (
-        <div className="absolute left-0 top-full z-10 w-30 max-h-48 overflow-y-auto bg-white border shadow mt-1">
+        <div className="absolute left-0 top-full z-10 w-32 max-h-48 overflow-y-auto bg-white border shadow mt-1">
           <div
             className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedTag === null ? "bg-blue-100" : ""}`}
             onClick={e => {

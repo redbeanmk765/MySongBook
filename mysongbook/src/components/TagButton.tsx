@@ -82,7 +82,7 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
       {isOpen && createPortal(
         <div
           ref={dropdownRef}
-          className="absolute flex flex-col items-start  z-[8] w-28 max-h-48 divide-y divide-gray-200 overflow-y-auto bg-white border rounded"
+          className="absolute flex flex-col items-start z-[8] w-28 max-h-48 overflow-y-auto bg-white shadow-md border rounded mt-1"
           style={{
             top: `${dropdownPosition.top}px`,
             left: `${dropdownPosition.left}px`,

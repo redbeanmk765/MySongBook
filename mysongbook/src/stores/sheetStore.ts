@@ -34,6 +34,7 @@ interface SheetStore {
   addRow: (newData: RowData) => void;
   updateRow: (id: number, updatedData: Partial<RowData>) => void;
   deleteRow: (id: number) => void;
+  renameTagInData: (oldTag: string, newTag: string) => void;
   
   // Undo/Redo
   undo: () => void;
@@ -110,6 +111,13 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
       redoStack: []
     });
   },
+
+  renameTagInData: (oldTag, newTag) => set((state) => ({
+    data: state.data.map(row => 
+      row.tag === oldTag ? { ...row, tag: newTag } : row
+    ),
+  })),
+  
 
   // Undo/Redo
   undo: () => {

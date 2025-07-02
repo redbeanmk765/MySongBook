@@ -22,6 +22,7 @@ interface TagColorStore {
   tagColors: TagColorMap;
   setTagColor: (tag: string, color: Partial<Omit<TagColor, 'tag'>>) => void;
   setTagColors: (colors: TagColorMap) => void;
+  renameTag: (oldTag: string, newTag: string) => void
 }
 
 export const useTagColorStore = create<TagColorStore>((set, get) => ({
@@ -39,4 +40,17 @@ export const useTagColorStore = create<TagColorStore>((set, get) => ({
   })),
 
   setTagColors: (colors) => set({ tagColors: colors }),
+
+  renameTag: (oldTag, newTag) => {
+    const { tagColors } = get();
+    if (!tagColors[oldTag]) return;
+
+    const newTagColors: TagColorMap = { ...tagColors };
+    newTagColors[newTag] = {
+      ...newTagColors[oldTag],
+      tag: newTag,
+    };
+    delete newTagColors[oldTag];
+    set({ tagColors: newTagColors });
+  },
 })); 

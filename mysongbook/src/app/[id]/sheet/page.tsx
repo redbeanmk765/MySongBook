@@ -227,6 +227,7 @@ export default function sheet() {
                     <Row
                       key={row.id}
                       data={row}
+                      tagList={tagList}
                     />
                   ))}
                 </tbody>
