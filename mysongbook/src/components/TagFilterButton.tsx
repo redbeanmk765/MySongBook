@@ -63,7 +63,7 @@ export default function TagFilterButton({
           >
             전체
           </div>
-          {tagList.map(tag => (
+          {useTagColorStore.getState().getTagNames().map(tag => (
             <div
               key={tag}
               className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedTag === tag ? "bg-blue-100" : ""}`}

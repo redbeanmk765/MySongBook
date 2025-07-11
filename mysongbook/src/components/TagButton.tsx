@@ -88,7 +88,7 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
             left: `${dropdownPosition.left}px`,
           }}
         >
-          {tagList.map((tag) => {
+          {useTagColorStore.getState().getTagNames().map((tag) => {
             const color = getTagColor(tag, tagColors);
             return (
               <div key={tag} className="w-full py-2 cursor-pointer hover:bg-cyan-50/75" onClick={() => handleTagSelect(tag)}>
