@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback } from "react";
 import { RowData } from "@/types/RowData";
 import { useTagColorStore } from '@/stores/tagColorStore';
 import TagButton from "./TagButton";
+import { Input } from "@/components/ui/input";
 
 interface GenerateTdProps {
   data: RowData;
@@ -77,13 +78,13 @@ export default function GenerateTd({
             onBlur={handleTagBlur}
           />
         ) : (
-        <input
+        <Input
           type="text"
           name={nameString}
           defaultValue={editedData[fieldName] ?? ""}
           onBlur={handleBlur}
           ref={inputRef}
-          className="block w-full min-w-0 box-border border-r text-left pl-4 py-2 h-[30px] overflow-hidden whitespace-nowrap text-ellipsis"
+          className="block w-full min-w-0 box-border border-r h-8 text-left overflow-hidden whitespace-nowrap text-ellipsis "
         />
         )
       ) : (
