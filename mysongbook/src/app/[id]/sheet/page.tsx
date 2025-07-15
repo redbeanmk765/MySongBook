@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Header from "@/components/Header";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RowData } from "@/types/RowData";
 import Row from "@/components/Row";
 import TagFilterButton from "@/components/TagFilterButton";
@@ -11,6 +11,9 @@ import { UserRound, CaseSensitive } from "lucide-react";
 import { useSheetStore } from "@/stores/sheetStore";
 import { useUIStore } from "@/stores/uiStore";
 import { sortData } from "@/utils/sortUtils";
+import BlockNoteEditor from "@/components/BlockNoteEditor"; 
+import { PartialBlock } from "@blocknote/core";
+
 
 export default function sheet() {
   const {
@@ -39,7 +42,16 @@ export default function sheet() {
     setMax
   } = useSheetStore();
 
+  
+
   const { isTagDropdownOpen, setTagDropdownOpen } = useUIStore();
+
+  const [noteBlocks, setNoteBlocks] = useState<PartialBlock[]>([
+    {
+      type: "paragraph",
+      content: "여기에 자유롭게 메모를 남겨보세요!",
+    },
+    ]);
 
   // 초기 데이터 설정 (컴포넌트 마운트 시 한 번만)
   useEffect(() => {
@@ -115,6 +127,9 @@ export default function sheet() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container w-full max-w-screen-2xl mx-auto px-4 py-8">
+        <div className="mb-8 p-6 rounded-lg bg-white shadow-md">
+          <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={true}/>
+        </div>
         <div className="bg-white rounded-lg shadow-md">
           <div className="flex items-center justify-between p-6 border-b">
             <div className="flex items-center space-x-6">
@@ -219,7 +234,7 @@ export default function sheet() {
                         </span>
                       </div>
                     </th>
-                    <th scope="col" className="sticky z-20 w-[60px] z-10 text-left px-4">삭제</th>
+                    <th scope="col" className="sticky z-20 w-[60px] text-left px-4">삭제</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -233,7 +248,7 @@ export default function sheet() {
                 </tbody>
               </table>
               <div className="flex w-full bg-white justify-center">
-                <button className="w-10 h-8 my-2 bg-gray-200 rounded-full w-full" onClick={() => handleAddData(createBlankData())}>+</button>
+                <button className=" h-8 my-2 bg-gray-200 rounded-full w-full" onClick={() => handleAddData(createBlankData())}>+</button>
               </div>
             </section>
 

@@ -22,6 +22,7 @@ interface SheetStore {
   max: number;
 
   // 액션
+  loadData: () => Promise<void>;
   setData: (data: RowData[]) => void;
   setOrigin: (origin: RowData[]) => void;
   setEditingCell: (cell: { rowId: number; field: keyof RowData } | null) => void;
@@ -58,6 +59,24 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
   max: 50,
 
   // 상태 설정
+  loadData: async () => {
+    // API 라우트나 public 폴더의 파일을 fetch 할 수 있습니다.
+    // 예시: public/data.json
+    try {
+      const response = await fetch('/data.json'); 
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const jsonData: RowData[] = await response.json();
+      // 로드된 데이터로 data와 origin 상태를 모두 업데이트합니다.
+      // undo/redo 스택도 초기화합니다.
+      set({ data: jsonData, origin: jsonData, undoStack: [], redoStack: [] });
+    } catch (error) {
+      console.error("Failed to load sheet data:", error);
+      // 에러 처리 로직 (예: 에러 상태 설정)
+    }
+  },
+  
   setData: (data) => set({ data }),
   setOrigin: (origin) => set({ origin }),
   setEditingCell: (editingCell) => set({ editingCell }),
