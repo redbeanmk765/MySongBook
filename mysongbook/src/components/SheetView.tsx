@@ -4,8 +4,13 @@ import { useState } from 'react';
 import { useUIStore } from '@/stores/uiStore';
 import { SheetTable } from './SheetTable';
 import { Button } from "@/components/ui/button"; // Shadcn/ui 버튼 사용 예시
-import BlockNoteEditor from './BlockNoteEditor';
 import { PartialBlock } from '@blocknote/core';
+import dynamic from 'next/dynamic';
+
+ const BlockNoteEditor = dynamic(
+    () => import('./BlockNoteEditor'),
+    { ssr: false }
+  );
 
 export function SheetView() {
   const { isAdmin, mode, setMode } = useUIStore((state) => ({
@@ -14,8 +19,14 @@ export function SheetView() {
     setMode: state.setMode,
   }));
 
-  const [noteBlocks, setNoteBlocks] = useState<PartialBlock[]>([]);
+  
 
+  const [noteBlocks, setNoteBlocks] = useState<PartialBlock[]>([
+    {
+      type: "paragraph",
+      content: "여기에 자유롭게 메모를 남겨보세요!",
+    },
+  ]);
   const isEditable = isAdmin && mode === 'edit';
 
   const handleToggleMode = () => {
