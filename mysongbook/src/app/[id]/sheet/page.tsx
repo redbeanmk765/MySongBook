@@ -242,8 +242,8 @@ export default function sheet() {
                     <Row
                       key={row.id}
                       data={row}
-                      tagList={tagList}
-                    />
+                      tagList={tagList} 
+                      isEditable={true}                    />
                   ))}
                 </tbody>
               </table>

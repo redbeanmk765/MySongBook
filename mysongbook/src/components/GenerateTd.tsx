@@ -13,6 +13,7 @@ interface GenerateTdProps {
   setEditedData: React.Dispatch<React.SetStateAction<RowData>>;
   handleUpdate: (id: number, updatedData: Partial<RowData>) => void;
   tagList?: string[];
+  isEditable: boolean;
 }
 
 function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
