@@ -13,11 +13,9 @@ import dynamic from 'next/dynamic';
   );
 
 export function SheetView() {
-  const { isAdmin, mode, setMode } = useUIStore((state) => ({
-    isAdmin: state.isAdmin,
-    mode: state.mode,
-    setMode: state.setMode,
-  }));
+  const isAdmin = useUIStore((state) => state.isAdmin);
+  const mode = useUIStore((state) => state.mode);
+  const setMode = useUIStore((state) => state.setMode);
 
   
 

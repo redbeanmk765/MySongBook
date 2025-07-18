@@ -23,12 +23,12 @@ export default function sheet() {
 
  // const { isTagDropdownOpen, setTagDropdownOpen } = useUIStore();
 
-  const [noteBlocks, setNoteBlocks] = useState<PartialBlock[]>([
-    {
-      type: "paragraph",
-      content: "여기에 자유롭게 메모를 남겨보세요!",
-    },
-    ]);
+  // const [noteBlocks, setNoteBlocks] = useState<PartialBlock[]>([
+  //   {
+  //     type: "paragraph",
+  //     content: "여기에 자유롭게 메모를 남겨보세요!",
+  //   },
+  //   ]);
 
   // 초기 데이터 설정 (컴포넌트 마운트 시 한 번만)
   useEffect(() => {
@@ -76,15 +76,15 @@ export default function sheet() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="container w-full max-w-screen-2xl mx-auto px-4 py-8">
+      {/* <div className="container w-full max-w-screen-2xl mx-auto px-4 py-8">
         <div className="mb-8 p-6 rounded-lg bg-white shadow-md">
           <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={true}/>
         </div>
         <div className="bg-white rounded-lg shadow-md">
           <SheetTable isEditable={true} />
         </div>
-      </div>
-      {/* <SheetView /> */}
+      </div> */}
+      <SheetView />
     </div>
 
     
