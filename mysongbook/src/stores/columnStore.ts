@@ -1,36 +1,48 @@
+// stores/columnStore.ts
 import { create } from 'zustand';
 import { Column } from '@/types/Column';
-import { nanoid } from 'nanoid';
+
+const ALLOWED_DYNAMIC_KEYS = ['col_1', 'col_2', 'col_3', 'col_4', 'col_5'];
 
 interface ColumnStore {
   columns: Column[];
 
+  setColumns: (newColumns: Column[]) => void;
   addColumn: (header: string) => void;
   updateColumn: (key: string, newHeader: string) => void;
   deleteColumn: (key: string) => void;
-  setColumns: (columns: Column[]) => void;
 }
 
-export const useColumnStore = create<ColumnStore>((set) => ({
+export const useColumnStore = create<ColumnStore>((set, get) => ({
+  // 초기 고정 컬럼
   columns: [
-    { key: 'tag', header: '태그', isTag: true, isFixed: true },
+    { key: 'tag', header: '태그', isTag: true, isFixed: true }, 
     { key: 'singer', header: '가수', isFixed: true },
-    { key: 'name', header: '제목', isFixed: true },
-    { key: 'memo', header: '메모', isFixed: true },
-    { key: 'col_1', header: '컬럼1' },
-    { key: 'col_2', header: '컬럼2' },
-    { key: 'col_3', header: '컬럼3' },
-    { key: 'col_4', header: '컬럼4' },
-    { key: 'col_5', header: '컬럼5' },
+    { key: 'name', header: '곡명', isFixed: true },
+    { key: 'memo', header: '메모' },
   ],
 
-  addColumn: (header) =>
-    set((state) => {
-      const index = state.columns.filter(col => col.key.startsWith('col_')).length + 1;
-      const newKey = `col_${index}`;
-      const newColumn = { key: newKey, header, isFixed: false };
-      return { columns: [...state.columns, newColumn] };
-    }),
+  setColumns: (newColumns) => set({ columns: newColumns }),
+
+  addColumn: (header) => {
+    const usedKeys = get().columns.map((col) => col.key);
+    const availableKey = ALLOWED_DYNAMIC_KEYS.find((key) => !usedKeys.includes(key));
+
+    if (!availableKey) {
+      alert("더 이상 컬럼을 추가할 수 없습니다 (최대 5개).");
+      return;
+    }
+
+    set((state) => ({
+      columns: [
+        ...state.columns,
+        {
+          key: availableKey,
+          header,
+        },
+      ],
+    }));
+  },
 
   updateColumn: (key, newHeader) =>
     set((state) => ({
@@ -41,8 +53,6 @@ export const useColumnStore = create<ColumnStore>((set) => ({
 
   deleteColumn: (key) =>
     set((state) => ({
-      columns: state.columns.filter((col) => col.key !== key),
+      columns: state.columns.filter((col) => col.key !== key || col.isFixed),
     })),
-
-  setColumns: (columns) => set({ columns }),
 }));
