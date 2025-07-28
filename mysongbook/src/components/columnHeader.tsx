@@ -1,128 +1,76 @@
-// ColumnHeader.tsx
-import React, { useState, useRef } from 'react';
-import { useUIStore } from '@/stores/uiStore'; // 정렬 상태 등 저장
-import { cn } from '@/lib/utils'; // Tailwind 조건부 클래스 헬퍼
+"use client";
 
-interface ColumnHeaderProps {
-  columnId: string;
-  columnName: string;
-  sortOrder: 'asc' | 'desc' | null;
-  onSortToggle: (columnId: string) => void;
-  onNameChange: (columnId: string, newName: string) => void;
-  onResize: (columnId: string, newWidth: number) => void;
-  onDragStart: (columnId: string) => void;
-  onDrop: (fromId: string, toId: string) => void;
-}
+import React, { useRef } from "react";
+import { useColumnStore } from "@/stores/columnStore";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
+import HeaderItem from "./HeaderItem";
 
-export const ColumnHeader: React.FC<ColumnHeaderProps> = ({
-  columnId,
-  columnName,
-  sortOrder,
-  onSortToggle,
-  onNameChange,
-  onResize,
-  onDragStart,
-  onDrop,
-}) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [nameInput, setNameInput] = useState(columnName);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
+export default function ColumnHeader() {
+  const { columns, setColumns } = useColumnStore();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // 너비 조절 관련
-  const isResizing = useRef(false);
-  const startX = useRef(0);
-  const startWidth = useRef(0);
+  const handleResize = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  const handleMouseDownResize = (e: React.MouseEvent) => {
-    isResizing.current = true;
-    startX.current = e.clientX;
-    startWidth.current = headerRef.current?.offsetWidth || 0;
-    document.addEventListener('mousemove', handleMouseMoveResize);
-    document.addEventListener('mouseup', handleMouseUpResize);
+    const startX = e.clientX;
+    const startWidth = columns[index].width ?? 100;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const newWidth = Math.max(100, startWidth + deltaX); // 최소 너비 제한
+
+      const next = [...columns];
+      next[index] = { ...next[index], width: newWidth };
+      setColumns(next);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   };
 
-  const handleMouseMoveResize = (e: MouseEvent) => {
-    if (!isResizing.current) return;
-    const deltaX = e.clientX - startX.current;
-    const newWidth = Math.max(60, startWidth.current + deltaX);
-    onResize(columnId, newWidth);
-  };
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-  const handleMouseUpResize = () => {
-    isResizing.current = false;
-    document.removeEventListener('mousemove', handleMouseMoveResize);
-    document.removeEventListener('mouseup', handleMouseUpResize);
-  };
-
-  const handleNameClick = () => setIsEditing(true);
-
-  const handleNameBlur = () => {
-    setIsEditing(false);
-    if (nameInput !== columnName) {
-      onNameChange(columnId, nameInput.trim() || columnName);
-    }
-  };
-
-  const handleDragStart = (e: React.DragEvent) => {
-    isDragging.current = true;
-    onDragStart(columnId);
-    e.dataTransfer.setData('text/plain', columnId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    const fromId = e.dataTransfer.getData('text/plain');
-    onDrop(fromId, columnId);
-    isDragging.current = false;
+    const oldIndex = columns.findIndex((col) => col.key === active.id);
+    const newIndex = columns.findIndex((col) => col.key === over.id);
+    const newOrder = arrayMove(columns, oldIndex, newIndex);
+    setColumns(newOrder);
   };
 
   return (
-    <div
-      ref={headerRef}
-      className="relative group flex items-center px-2 py-1 border-r cursor-pointer bg-white select-none"
-      draggable
-      onDragStart={handleDragStart}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+      modifiers={[restrictToHorizontalAxis]}
     >
-      {/* 이름 변경 영역 */}
-      {isEditing ? (
-        <input
-          className="w-full text-sm border rounded px-1"
-          value={nameInput}
-          autoFocus
-          onChange={(e) => setNameInput(e.target.value)}
-          onBlur={handleNameBlur}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleNameBlur();
-          }}
-        />
-      ) : (
-        <span
-          onClick={handleNameClick}
-          className="flex-1 text-sm font-medium truncate"
-        >
-          {columnName}
-        </span>
-      )}
-
-      {/* 정렬 아이콘 */}
-      <span
-        className="ml-2 text-xs opacity-50 hover:opacity-100"
-        onClick={(e) => {
-          e.stopPropagation();
-          onSortToggle(columnId);
-        }}
+      <SortableContext
+        items={columns.map((c) => c.key)}
+        strategy={horizontalListSortingStrategy}
       >
-        {sortOrder === 'asc' ? '▲' : sortOrder === 'desc' ? '▼' : '⇅'}
-      </span>
-
-      {/* 너비 조절 핸들 */}
-      <div
-        onMouseDown={handleMouseDownResize}
-        className="absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent group-hover:bg-blue-300 transition-colors"
-      />
-    </div>
+        <div
+          ref={containerRef}
+          className="flex w-full h-12 border-b border-gray-300 overflow-x-auto min-w-[100px]"
+        >
+          {columns.map((col, index) => (
+            <HeaderItem
+              key={col.key}
+              id={col.key}
+              width={col.width ?? 100}
+              header={col.header}
+              onResize={(e) => handleResize(e, index)}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
-};
+}

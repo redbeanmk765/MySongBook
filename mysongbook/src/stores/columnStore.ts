@@ -10,16 +10,16 @@ interface ColumnStore {
   addColumn: (header: string) => void;
   updateColumn: (key: string, newHeader: string) => void;
   deleteColumn: (key: string) => void;
-  updateGrow: (key: string, newGrow: number) => void;
+  updateWidth: (key: string, newWidth: number) => void;
   reorderColumns: (fromKey: string, toKey: string) => void;
 }
 
 export const useColumnStore = create<ColumnStore>((set, get) => ({
   columns: [
-    { key: 'tag', header: '태그', isTag: true, isFixed: true, grow: 1 },
-    { key: 'singer', header: '가수', isFixed: true, grow: 2 },
-    { key: 'name', header: '곡명', isFixed: true, grow: 4 },
-    { key: 'memo', header: '메모', grow: 3 },
+    { key: 'tag', header: '태그', isTag: true, isFixed: true, width: 120 },
+    { key: 'singer', header: '가수', isFixed: true, width: 240 },
+    { key: 'name', header: '곡명', isFixed: true, width: 480 },
+    { key: 'memo', header: '메모', width: 360 },
   ],
 
   setColumns: (newColumns) => set({ columns: newColumns }),
@@ -34,7 +34,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     set((state) => ({
       columns: [
         ...state.columns,
-        { key: availableKey, header, grow: 1 }, // 새 column의 기본 grow = 1
+        { key: availableKey, header,  width: 120 }, // 새 column의 기본 grow = 1
       ],
     }));
   },
@@ -51,10 +51,10 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       columns: state.columns.filter((col) => col.key !== key || col.isFixed),
     })),
 
-  updateGrow: (key, newGrow) =>
+  updateWidth: (key, newWidth) =>
     set((state) => ({
       columns: state.columns.map((col) =>
-        col.key === key ? { ...col, grow: Math.max(newGrow, 0.5) } : col
+        col.key === key ? { ...col, grow: Math.max(newWidth, 100) } : col
       ),
     })),
 

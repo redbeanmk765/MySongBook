@@ -9,6 +9,7 @@ import { UserRound, CaseSensitive } from "lucide-react";
 import { useSheetStore } from "@/stores/sheetStore";
 import { useUIStore } from "@/stores/uiStore";
 import { sortData } from "@/utils/sortUtils";
+import ColumnHeader from "./ColumnHeader";
 
 interface SheetTableProps {
   isEditable: boolean;
@@ -92,6 +93,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
         </div>
 
         <section id="table" className="flex flex-col justify-center lg:px-10 md:px-8 sm:px-2 bg-white">
+          <ColumnHeader/>
           <table className="table-auto w-full">
             <thead className="sticky top-[64px] md:top-[96px] sm:top-[64px] z-10 bg-blue-100 whitespace-nowrap">
               <tr className="sticky z-10 border-b-4 bg-gray-300">
