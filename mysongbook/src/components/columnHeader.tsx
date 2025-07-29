@@ -1,76 +1,114 @@
-"use client";
+'use client';
 
-import React, { useRef } from "react";
-import { useColumnStore } from "@/stores/columnStore";
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
-import HeaderItem from "./HeaderItem";
+import React, { useEffect, useRef, useState } from 'react';
+import { useColumnStore } from '@/stores/columnStore';
+import HeaderItem from './HeaderItem';
+
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+} from '@dnd-kit/core';
+
+import {
+  restrictToHorizontalAxis,
+  restrictToParentElement,
+} from "@dnd-kit/modifiers";
+
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
+import { Column } from '@/types/Column';
 
 export default function ColumnHeader() {
-  const { columns, setColumns } = useColumnStore();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const columns = useColumnStore((state) => state.columns);
+  const setColumns = useColumnStore((state) => state.setColumns);
 
-  const handleResize = (e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null); // 추가
 
-    const startX = e.clientX;
-    const startWidth = columns[index].width ?? 100;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const newWidth = Math.max(100, startWidth + deltaX); // 최소 너비 제한
-
-      const next = [...columns];
-      next[index] = { ...next[index], width: newWidth };
-      setColumns(next);
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
     };
 
-    const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const id = event.active.id as string;
+    setActiveId(id);
+    const col = columns.find((col) => col.key === id);
+    setActiveColumn(col ?? null); // 추가
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    setActiveId(null);
+    setActiveColumn(null); // 추가
 
-    const oldIndex = columns.findIndex((col) => col.key === active.id);
-    const newIndex = columns.findIndex((col) => col.key === over.id);
-    const newOrder = arrayMove(columns, oldIndex, newIndex);
-    setColumns(newOrder);
+    if (over && active.id !== over.id) {
+      const oldIndex = columns.findIndex((col) => col.key === active.id);
+      const newIndex = columns.findIndex((col) => col.key === over.id);
+      const newColumns = arrayMove(columns, oldIndex, newIndex);
+      setColumns(newColumns);
+    }
   };
 
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToHorizontalAxis]}
+      modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
     >
       <SortableContext
-        items={columns.map((c) => c.key)}
+        items={columns.map((col) => col.key)}
         strategy={horizontalListSortingStrategy}
       >
         <div
           ref={containerRef}
-          className="flex w-full h-12 border-b border-gray-300 overflow-x-auto min-w-[100px]"
+          className="flex border-b border-gray-300 w-full overflow-hidden"
         >
           {columns.map((col, index) => (
             <HeaderItem
               key={col.key}
               id={col.key}
-              width={col.width ?? 100}
-              header={col.header}
-              onResize={(e) => handleResize(e, index)}
+              index={index}
+              containerWidth={containerWidth}
             />
           ))}
         </div>
       </SortableContext>
+
+      <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
+        {activeColumn ? (
+          <HeaderItem
+            id={activeColumn.key}
+            index={-1} // 드래그 중 index는 무의미하므로 -1
+            containerWidth={containerWidth}
+            column={activeColumn}
+            isOverlay
+          />
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }

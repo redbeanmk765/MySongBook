@@ -1,16 +1,31 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useRef } from 'react';
+import { useColumnStore } from '@/stores/columnStore';
+
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
+import { Column } from '@/types/Column';
 
-interface HeaderItemProps {
+interface Props {
   id: string;
-  header: string;
-  width: number;
-  onResize?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  index: number;
+  containerWidth: number;
+  column?: Column; // 드래그 중 overlay용
+  isOverlay?: boolean;
 }
 
-export default function HeaderItem({ id, header, width, onResize }: HeaderItemProps) {
+export default function HeaderItem({
+  id,
+  index,
+  containerWidth,
+  column,
+  isOverlay = false,
+}: Props) {
+  const columns = useColumnStore((state) => state.columns);
+  const setColumns = useColumnStore((state) => state.setColumns);
+
   const {
     attributes,
     listeners,
@@ -20,35 +35,90 @@ export default function HeaderItem({ id, header, width, onResize }: HeaderItemPr
     isDragging,
   } = useSortable({ id });
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
+  const col = column ?? columns[index];
+  const widthRatio = col?.widthRatio ?? 0.2;
+  const currentWidthPx = Math.round(containerWidth * widthRatio);
+
+  const initialWidthPx = useRef(currentWidthPx);
+  useEffect(() => {
+    if (isDragging) {
+      initialWidthPx.current = currentWidthPx;
+    }
+  }, [isDragging, currentWidthPx]);
+
+  const widthPx = isDragging ? initialWidthPx.current : currentWidthPx;
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
     transition,
-    width, // px 기반 고정
-    zIndex: isDragging ? 9999 : 'auto',
+    cursor: isDragging ? 'grabbing' : 'grab',
+    userSelect: 'none',
+    width: `${widthPx}px`,
+    minWidth: '110px',
+    maxWidth: `${widthPx}px`,
+    flexShrink: 0,
+    opacity: isDragging ? 0 : 1,
+    pointerEvents: isDragging ? 'none' : 'auto',
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startWidthPx = containerWidth * widthRatio;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const newWidthPx = startWidthPx + deltaX;
+      const newRatio = newWidthPx / containerWidth;
+
+      const otherRatiosSum = columns.reduce((sum, col, i) => {
+        if (i === index) return sum;
+        return sum + (col.widthRatio ?? 0.2);
+      }, 0);
+
+      const maxAllowed = 1 - otherRatiosSum;
+
+      if (newRatio > maxAllowed || newRatio < 0.05) return;
+
+      const next = [...columns];
+      next[index] = { ...next[index], widthRatio: newRatio };
+      setColumns(next);
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
   };
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
       {...attributes}
       {...listeners}
       className={cn(
         "relative flex items-center border-r border-gray-300 bg-white text-sm",
         "select-none px-2",
         "transition-colors duration-150",
-        "flex-shrink-0", // 💡 드래그 시 너비 고정
-        "z-10",           // 💡 드래그 중 가림 방지
-        isDragging && "opacity-50" // 드래그 중 시각 피드백
+        "z-10",
+        "flex-shrink-0"
       )}
+      style={style}
     >
-      <span className="truncate">{header}</span>
+      <span className="truncate">{col?.header}</span>
 
-      {/* 리사이즈 핸들 */}
-      <div
-        onMouseDown={onResize}
-        className="absolute top-0 right-0 h-full w-2 cursor-col-resize"
-      />
+      {!isOverlay && (
+        <div
+          onMouseDown={handleMouseDown}
+          onPointerDown={(e) => e.stopPropagation()} // 드래그 방지
+          className="absolute top-0 right-0 w-[4px] h-full cursor-col-resize ring-1 ring-blue-100 bg-blue-100"
+        />
+      )}
     </div>
   );
 }
