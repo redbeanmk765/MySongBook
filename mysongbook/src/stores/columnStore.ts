@@ -16,10 +16,10 @@ interface ColumnStore {
 
 export const useColumnStore = create<ColumnStore>((set, get) => ({
   columns: [
-    { key: 'tag', header: '태그', isTag: true, isFixed: true, width: 120 },
-    { key: 'singer', header: '가수', isFixed: true, width: 240 },
-    { key: 'name', header: '곡명', isFixed: true, width: 480 },
-    { key: 'memo', header: '메모', width: 360 },
+    { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1 },
+    { key: 'singer', header: '가수', isFixed: true, widthRatio: 0.2 },
+    { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.4 },
+    { key: 'memo', header: '메모', widthRatio: 0.1},
   ],
 
   setColumns: (newColumns) => set({ columns: newColumns }),
@@ -34,7 +34,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     set((state) => ({
       columns: [
         ...state.columns,
-        { key: availableKey, header,  width: 120 }, // 새 column의 기본 grow = 1
+        { key: availableKey, header,  width: 0.1 }, // 새 column의 기본 grow = 1
       ],
     }));
   },

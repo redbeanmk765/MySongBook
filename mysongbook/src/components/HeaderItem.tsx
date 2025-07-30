@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
@@ -102,22 +101,39 @@ export default function HeaderItem({
       {...attributes}
       {...listeners}
       className={cn(
-        "relative flex items-center border-r border-gray-300 bg-white text-sm",
-        "select-none px-2",
-        "transition-colors duration-150",
-        "z-10",
-        "flex-shrink-0"
+        'relative flex items-center border-gray-300 bg-white text-sm',
+        'select-none px-2',
+        'transition-colors duration-150',
+        'z-10',
+        'flex-shrink-0',
+        'h-8'
       )}
       style={style}
     >
       <span className="truncate">{col?.header}</span>
 
       {!isOverlay && (
-        <div
-          onMouseDown={handleMouseDown}
-          onPointerDown={(e) => e.stopPropagation()} // 드래그 방지
-          className="absolute top-0 right-0 w-[4px] h-full cursor-col-resize ring-1 ring-blue-100 bg-blue-100"
-        />
+
+        <div className=" w-[4px] h-[32px] bg-transparent group">
+
+            {/* 바 (리사이즈 핸들) */}
+            <div
+              onMouseDown={handleMouseDown}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize bg-transparent group hover:bg-blue-100 transition-colors z-10"
+            >
+              <div
+              className="absolute top-[-12px] right-[3px] translate-x-1/2 w-0 h-0 
+                        border-l-[9px] border-l-transparent 
+                        border-r-[9px] border-r-transparent 
+                        border-t-[9px] border-t-transparent
+                        group-hover:border-t-blue-100
+                        cursor-col-resize transition-all"
+              onMouseDown={handleMouseDown}
+              onPointerDown={(e) => e.stopPropagation()}
+            ></div>
+            </div>
+        </div>
       )}
     </div>
   );

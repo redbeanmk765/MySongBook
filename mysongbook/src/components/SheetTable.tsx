@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { RowData } from "@/types/RowData";
 import Row from "@/components/Row";
 import TagFilterButton from "@/components/TagFilterButton";
@@ -58,6 +58,26 @@ export function SheetTable({ isEditable }: SheetTableProps) {
     return sortedData.filter((item) => item.tag === selectedTag);
   }, [sortedData, selectedTag]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+
+   useEffect(() => {
+      if (!containerRef.current) return;
+  
+      const observer = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          if (entry.contentRect) {
+            setContainerWidth(entry.contentRect.width);
+          }
+        }
+      });
+  
+      observer.observe(containerRef.current);
+  
+      return () => observer.disconnect();
+    }, []);
+
   return (
     <>
       <div className="flex items-center justify-between p-6 border-b">
@@ -94,9 +114,11 @@ export function SheetTable({ isEditable }: SheetTableProps) {
 
         <section id="table" className="flex flex-col justify-center lg:px-10 md:px-8 sm:px-2 bg-white">
           <ColumnHeader/>
-          <table className="table-auto w-full">
+          {/* <table className="table-auto w-full">
+            
             <thead className="sticky top-[64px] md:top-[96px] sm:top-[64px] z-10 bg-blue-100 whitespace-nowrap">
               <tr className="sticky z-10 border-b-4 bg-gray-300">
+                
                 <th scope="col" className="min-w-[120px] w-[10%] sticky z-20 border-r text-left px-2 py-2">
                   <TagFilterButton tagList={tagList} selectedTag={selectedTag} onTagSelect={setSelectedTag} isOpen={isTagDropdownOpen} setIsOpen={setTagDropdownOpen} />
                 </th>
@@ -126,12 +148,20 @@ export function SheetTable({ isEditable }: SheetTableProps) {
                 <Row key={row.id} data={row} tagList={tagList} isEditable={isEditable} />
               ))}
             </tbody>
-          </table>
-          {isEditable && (
-            <div className="flex w-full bg-white justify-center">
-              <button className=" h-8 my-2 bg-gray-200 rounded-full w-full" onClick={() => handleAddData(createBlankData())}>+</button>
+          </table> */}
+
+          <div ref={containerRef} className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {filteredData.slice(0, max).map((row) => (
+                <Row key={row.id} data={row} tagList={tagList} isEditable={isEditable} containerWidth={containerWidth} />
+              ))}
             </div>
-          )}
+            {isEditable && (
+              <div className="flex w-full bg-white justify-center">
+                <button className=" h-8 my-2 bg-gray-200 rounded-full w-full" onClick={() => handleAddData(createBlankData())}>+</button>
+              </div>
+            )}
+          </div>  
         </section>
 
         {filteredData.length > max && (

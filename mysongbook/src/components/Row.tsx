@@ -3,28 +3,37 @@ import { RowData } from "@/types/RowData";
 import GenerateTd from "./GenerateTd";
 import { useSheetStore } from "@/stores/sheetStore";
 import { useTagColorStore } from '@/stores/tagColorStore';
+import { useColumnStore } from '@/stores/columnStore';
 
 interface RowProps {
   data: RowData;
   tagList: string[];
   isEditable: boolean;
+  containerWidth: number; // Optional prop for container width
 }
 
 export default function Row({
   data,
   tagList = [],
   isEditable,
+  containerWidth,
 }: RowProps) {
   const { editingCell, setEditingCell, updateRow, deleteRow } = useSheetStore();
   const [editedData, setEditedData] = useState<RowData>(data);
+  const columns = useColumnStore((state) => state.columns);
 
   useEffect(() => {
     setEditedData(data);
   }, [data]);
 
   return (
-    <tr className="border-b bg-white text-sm">
-      <GenerateTd
+    <div className="border-b bg-white text-sm">
+      {columns.map((col, index) => (
+                  
+                ))}
+
+      
+      {/* <GenerateTd
         data={data}
         fieldName="tag"
         editingCell={editingCell}
@@ -64,8 +73,8 @@ export default function Row({
         setEditedData={setEditedData}
         handleUpdate={updateRow}
         isEditable={isEditable}
-      />
-      <td className="pl-[15px] h-[38px]">
+      /> */}
+      {/* <td className="pl-[15px] h-[38px]">
         {isEditable && (
           <div className="flex items-center h-full">
             <button
@@ -77,7 +86,7 @@ export default function Row({
             </button>
           </div>
         )}
-      </td>
-    </tr>
+      </td> */}
+    </div>
   );
 }

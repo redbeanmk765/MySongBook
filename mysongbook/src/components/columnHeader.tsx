@@ -3,29 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import HeaderItem from './HeaderItem';
-
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverlay,
-} from '@dnd-kit/core';
-
-import {
-  restrictToHorizontalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
-
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
+import {restrictToHorizontalAxis,restrictToParentElement} from "@dnd-kit/modifiers";
+import { arrayMove,  SortableContext,  horizontalListSortingStrategy,} from '@dnd-kit/sortable';
 import { Column } from '@/types/Column';
 
 export default function ColumnHeader() {
@@ -33,8 +13,6 @@ export default function ColumnHeader() {
   const [containerWidth, setContainerWidth] = useState(0);
   const columns = useColumnStore((state) => state.columns);
   const setColumns = useColumnStore((state) => state.setColumns);
-
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null); // 추가
 
   useEffect(() => {
@@ -53,14 +31,12 @@ export default function ColumnHeader() {
 
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string;
-    setActiveId(id);
     const col = columns.find((col) => col.key === id);
     setActiveColumn(col ?? null); // 추가
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
     setActiveColumn(null); // 추가
 
     if (over && active.id !== over.id) {
@@ -85,7 +61,7 @@ export default function ColumnHeader() {
       >
         <div
           ref={containerRef}
-          className="flex border-b border-gray-300 w-full overflow-hidden"
+          className="flex border-b border-gray-300 w-full overflow-visible"
         >
           {columns.map((col, index) => (
             <HeaderItem
