@@ -6,6 +6,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { Column } from '@/types/Column';
+import { RowData } from '@/types/RowData';
+import { useSheetStore } from '@/stores/sheetStore';
 
 interface Props {
   id: string;
@@ -33,6 +35,13 @@ export default function HeaderItem({
     transition,
     isDragging,
   } = useSortable({ id });
+
+  const { 
+    sortKey, 
+    sortDirection, 
+    setSortKey, 
+    setSortDirection 
+  } = useSheetStore();
 
   const col = column ?? columns[index];
   const widthRatio = col?.widthRatio ?? 0.2;
@@ -95,6 +104,36 @@ export default function HeaderItem({
     window.addEventListener('mouseup', onMouseUp);
   };
 
+    const handleSort = (key: keyof RowData) => {
+      if (sortKey === key) {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        setSortKey(key);
+        setSortDirection("asc");
+      }
+    };
+
+      const clickTimer = useRef<number | null>(null);
+      const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+
+      const handlePointerDown = (e: React.PointerEvent) => {
+        pointerDownPos.current = { x: e.clientX, y: e.clientY };
+      };
+
+      const handlePointerUp = (e: React.PointerEvent) => {
+        if (!pointerDownPos.current) return;
+
+        const deltaX = Math.abs(e.clientX - pointerDownPos.current.x);
+        const deltaY = Math.abs(e.clientY - pointerDownPos.current.y);
+
+        // 작은 이동만 있을 경우 → 클릭으로 간주
+        if (deltaX < 5 && deltaY < 5) {
+          handleSort(col?.key as keyof RowData);
+        }
+
+        pointerDownPos.current = null;
+      };
+
   return (
     <div
       ref={setNodeRef}
@@ -109,8 +148,14 @@ export default function HeaderItem({
         'h-8'
       )}
       style={style}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      //onPointerDown={(e) => e.stopPropagation()}
     >
-      <span className="truncate">{col?.header}</span>
+      <span className="truncate" >
+        {col?.header}
+
+      </span>
 
       {!isOverlay && (
 

@@ -14,6 +14,8 @@ interface GenerateTdProps {
   handleUpdate: (id: number, updatedData: Partial<RowData>) => void;
   tagList?: string[];
   isEditable: boolean;
+  containerWidth: number; // Optional prop for container width
+  widthRatio: number; // Optional prop for width ratio
 }
 
 function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
@@ -29,6 +31,8 @@ export default function GenerateTd({
   setEditedData,
   handleUpdate,
   tagList = [],
+  containerWidth,
+  widthRatio
 }: GenerateTdProps) {
   const tagColors = useTagColorStore(state => state.tagColors);
   const isEditingTd = editingCell?.rowId === data.id && editingCell.field === fieldName;
@@ -38,6 +42,9 @@ export default function GenerateTd({
 
   const isTagField = fieldName === 'tag';
   const tagColor = isTagField ? getTagColor(editedData[fieldName] as string, tagColors) : null;
+
+  const width = Math.round(containerWidth * widthRatio);
+
 
   useEffect(() => {
     if (isEditingTd && inputRef.current) {
@@ -68,8 +75,9 @@ export default function GenerateTd({
   };
 
   return (
-    <td className={"border-r min-w-0 text-left justify-center h-[38px] min-w-0 "
-      + (isEditingTd ? "bg-gray-50" : "")}>
+    <div className={'flex border-r min-w-0 text-left min-h-[38px] items-center '
+      + (isEditingTd ? "bg-gray-50" : "")}
+      style={{ width,  minWidth: '110px',}}>
       {isEditingTd ?  (
         isTagField ? (
           <TagButton
@@ -112,6 +120,6 @@ export default function GenerateTd({
           )}
         </span>
       )}
-    </td>
+    </div>
   );
 }

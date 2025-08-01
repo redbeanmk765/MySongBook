@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
 import { RowData } from '@/types/RowData';
+import { sortData } from '@/utils/sortUtils';
 
 interface ChangeLog {
   id: number;

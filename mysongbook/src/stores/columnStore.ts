@@ -34,7 +34,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     set((state) => ({
       columns: [
         ...state.columns,
-        { key: availableKey, header,  width: 0.1 }, // 새 column의 기본 grow = 1
+        { key: availableKey, header,  widthRatio: 0.1 }, // 새 column의 기본 grow = 1
       ],
     }));
   },

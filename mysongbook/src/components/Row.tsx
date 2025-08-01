@@ -27,8 +27,21 @@ export default function Row({
   }, [data]);
 
   return (
-    <div className="border-b bg-white text-sm">
+    <div className="flex border-b bg-white text-sm">
       {columns.map((col, index) => (
+        <GenerateTd
+          data={data}
+          fieldName={col.key as keyof RowData}
+          editingCell={editingCell}
+          setEditingCell={setEditingCell}
+          editedData={editedData}
+          setEditedData={setEditedData}
+          handleUpdate={updateRow}
+          tagList={tagList}
+          isEditable={isEditable}
+          containerWidth={containerWidth}
+          widthRatio={col.widthRatio}
+        />
                   
                 ))}
 
