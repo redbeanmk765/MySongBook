@@ -7,7 +7,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { Column } from '@/types/Column';
 import { RowData } from '@/types/RowData';
+import { useUIStore } from '@/stores/uiStore';
 import { useSheetStore } from '@/stores/sheetStore';
+import TagFilterButton from './TagFilterButton';
 
 interface Props {
   id: string;
@@ -40,7 +42,8 @@ export default function HeaderItem({
     sortKey, 
     sortDirection, 
     setSortKey, 
-    setSortDirection 
+    setSortDirection,
+    selectedTag,
   } = useSheetStore();
 
   const col = column ?? columns[index];
@@ -126,8 +129,9 @@ export default function HeaderItem({
         const deltaX = Math.abs(e.clientX - pointerDownPos.current.x);
         const deltaY = Math.abs(e.clientY - pointerDownPos.current.y);
 
-        // 작은 이동만 있을 경우 → 클릭으로 간주
-        if (deltaX < 5 && deltaY < 5) {
+        const isClick = deltaX < 5 && deltaY < 5;
+
+        if (isClick && col?.key !== 'tag') {
           handleSort(col?.key as keyof RowData);
         }
 
@@ -152,10 +156,14 @@ export default function HeaderItem({
       onPointerUp={handlePointerUp}
       //onPointerDown={(e) => e.stopPropagation()}
     >
-      <span className="truncate" >
-        {col?.header}
+      <div className="flex items-center justify-between w-full h-full">
+         {col?.key === 'tag' ? (
+          <TagFilterButton/>
+        ) : (
+          col?.header
+        )}
 
-      </span>
+      </div>
 
       {!isOverlay && (
 

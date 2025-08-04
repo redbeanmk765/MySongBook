@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import HeaderItem from './HeaderItem';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor } from '@dnd-kit/core';
 import {restrictToHorizontalAxis,restrictToParentElement} from "@dnd-kit/modifiers";
 import { arrayMove,  SortableContext,  horizontalListSortingStrategy,} from '@dnd-kit/sortable';
 import { Column } from '@/types/Column';
@@ -27,7 +27,19 @@ export default function ColumnHeader() {
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+      useSensor(MouseSensor, {
+        activationConstraint: {
+          distance: 5, // 5px 이상 이동해야 drag 시작
+        },
+      }),
+      useSensor(TouchSensor, {
+        activationConstraint: {
+          delay: 200,
+          tolerance: 5,
+        },
+      })
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string;
@@ -60,9 +72,14 @@ export default function ColumnHeader() {
         strategy={horizontalListSortingStrategy}
       >
         <div
-          ref={containerRef}
-          className="flex border-b border-gray-300 w-full overflow-visible"
-        >
+  ref={containerRef}
+  className="
+    flex border-b border-gray-300 w-full overflow-visible
+    sticky top-16 md:top-24   // 4 rem(=h-16) / 6 rem(=h-24) 아래에 붙음
+    z-10                      // 메인 헤더(z-20)보다 낮게
+    bg-white
+  "
+>
           {columns.map((col, index) => (
             <HeaderItem
               key={col.key}

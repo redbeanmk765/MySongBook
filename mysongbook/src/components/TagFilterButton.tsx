@@ -1,28 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { BarsArrowDownIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
 import TagColorSettingsModal from "@/components/TagColorSettingsModal";
-import { useUIStore } from "@/stores/uiStore";
 import { useTagColorStore } from '@/stores/tagColorStore';
+import { useSheetStore } from "@/stores/sheetStore";
+import { useUIStore } from "@/stores/uiStore";
 
-interface TagFilterButtonProps {
-  tagList: string[];
-  selectedTag: string | null;
-  onTagSelect: (tag: string | null) => void;
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-}
 
 function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
   return tagColors[tag] || tagColors['default'];
 }
 
-export default function TagFilterButton({ 
-  tagList, 
-  selectedTag, 
-  onTagSelect, 
-  isOpen, 
-  setIsOpen 
-}: TagFilterButtonProps) {
+export default function TagFilterButton() { 
+  const { isTagDropdownOpen: isOpen, setTagDropdownOpen: setIsOpen } = useUIStore();
+  const { selectedTag, setSelectedTag } = useSheetStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const tagColors = useTagColorStore(state => state.tagColors);
@@ -44,8 +34,8 @@ export default function TagFilterButton({
     <>
     <div
       ref={ref}
-      className={`block w-full flex justify-center items-center relative cursor-pointer pl-2 py-1 rounded ${isOpen ? "bg-gray-200" : ""} hover:bg-gray-100`}
-      onClick={() => setIsOpen(!isOpen)}
+      className={`flex w-full justify-center items-center relative cursor-pointer pl-2 py-1 rounded ${isOpen ? "bg-gray-200" : ""} hover:bg-gray-100`}
+      onClick={(e) =>{e.stopPropagation(); setIsOpen(!isOpen); console.log(isOpen)}}
       tabIndex={0}
     >
       <span className="inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis">{selectedTag === null ? '전체' : selectedTag}</span>
@@ -57,7 +47,7 @@ export default function TagFilterButton({
             className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedTag === null ? "bg-blue-100" : ""}`}
             onClick={e => {
               e.stopPropagation();
-              onTagSelect(null);
+              setSelectedTag(null);
               setIsOpen(false);
             }}
           >
@@ -69,7 +59,7 @@ export default function TagFilterButton({
               className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedTag === tag ? "bg-blue-100" : ""}`}
               onClick={e => {
                 e.stopPropagation();
-                onTagSelect(tag);
+                setSelectedTag(tag);
                 setIsOpen(false);
               }}  
             >
