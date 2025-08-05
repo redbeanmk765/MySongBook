@@ -7,7 +7,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { Column } from '@/types/Column';
 import { RowData } from '@/types/RowData';
-import { useUIStore } from '@/stores/uiStore';
 import { useSheetStore } from '@/stores/sheetStore';
 import TagFilterButton from './TagFilterButton';
 
@@ -48,7 +47,7 @@ export default function HeaderItem({
 
   const col = column ?? columns[index];
   const widthRatio = col?.widthRatio ?? 0.2;
-  const currentWidthPx = Math.round(containerWidth * widthRatio);
+  const currentWidthPx = Math.round(containerWidth * col.widthRatio);
 
   const initialWidthPx = useRef(currentWidthPx);
   useEffect(() => {
@@ -56,6 +55,21 @@ export default function HeaderItem({
       initialWidthPx.current = currentWidthPx;
     }
   }, [isDragging, currentWidthPx]);
+
+  useEffect(() => {
+    if (!isOverlay && col && col.widthRatio && containerWidth > 0) {
+      const newPixelWidth = Math.round(containerWidth * col.widthRatio);
+
+      if (col.pixelWidth !== newPixelWidth) {
+        const next = [...columns];
+        next[index] = {
+          ...next[index],
+          pixelWidth: newPixelWidth,
+        };
+        setColumns(next);
+      }
+    }
+  }, [containerWidth, columns, index, col, isOverlay, setColumns]);
 
   const widthPx = isDragging ? initialWidthPx.current : currentWidthPx;
 
@@ -81,20 +95,23 @@ export default function HeaderItem({
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const deltaX = moveEvent.clientX - startX;
-      const newWidthPx = startWidthPx + deltaX;
-      const newRatio = newWidthPx / containerWidth;
+      let newWidthPx = startWidthPx + deltaX;
+
+        if (newWidthPx < 110) newWidthPx = 110; // 최소 너비 제한
+
+      let newRatio = newWidthPx / containerWidth; 
 
       const otherRatiosSum = columns.reduce((sum, col, i) => {
         if (i === index) return sum;
-        return sum + (col.widthRatio ?? 0.2);
+        return sum + (col.widthRatio ?? 0.1);
       }, 0);
 
       const maxAllowed = 1 - otherRatiosSum;
 
-      if (newRatio > maxAllowed || newRatio < 0.05) return;
+      if (newRatio > maxAllowed ) newRatio = maxAllowed;
 
       const next = [...columns];
-      next[index] = { ...next[index], widthRatio: newRatio };
+      next[index] = { ...next[index], widthRatio: newRatio};
       setColumns(next);
     };
 
@@ -160,7 +177,7 @@ export default function HeaderItem({
          {col?.key === 'tag' ? (
           <TagFilterButton/>
         ) : (
-          col?.header
+          col?.pixelWidth
         )}
 
       </div>

@@ -4,4 +4,5 @@ export interface Column {
   isTag?: boolean;      // 태그 여부
   isFixed?: boolean;
   widthRatio: number;       // 너비 (픽셀 단위)
+  pixelWidth: number; // 픽셀 단위 너비 (선택적)
 }

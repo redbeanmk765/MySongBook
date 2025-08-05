@@ -39,8 +39,7 @@ export default function Row({
           handleUpdate={updateRow}
           tagList={tagList}
           isEditable={isEditable}
-          containerWidth={containerWidth}
-          widthRatio={col.widthRatio}
+          pixelWidth={col.pixelWidth}
         />
                   
                 ))}

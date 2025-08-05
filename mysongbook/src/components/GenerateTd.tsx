@@ -14,8 +14,7 @@ interface GenerateTdProps {
   handleUpdate: (id: number, updatedData: Partial<RowData>) => void;
   tagList?: string[];
   isEditable: boolean;
-  containerWidth: number; // Optional prop for container width
-  widthRatio: number; // Optional prop for width ratio
+  pixelWidth: number; 
 }
 
 function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
@@ -31,8 +30,7 @@ export default function GenerateTd({
   setEditedData,
   handleUpdate,
   tagList = [],
-  containerWidth,
-  widthRatio
+  pixelWidth,
 }: GenerateTdProps) {
   const tagColors = useTagColorStore(state => state.tagColors);
   const isEditingTd = editingCell?.rowId === data.id && editingCell.field === fieldName;
@@ -43,7 +41,7 @@ export default function GenerateTd({
   const isTagField = fieldName === 'tag';
   const tagColor = isTagField ? getTagColor(editedData[fieldName] as string, tagColors) : null;
 
-  const width = Math.round(containerWidth * widthRatio);
+  const width = pixelWidth;
 
 
   useEffect(() => {
