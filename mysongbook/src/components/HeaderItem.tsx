@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -14,7 +14,7 @@ interface Props {
   id: string;
   index: number;
   containerWidth: number;
-  column?: Column; // 드래그 중 overlay용
+  column?: Column;
   isOverlay?: boolean;
 }
 
@@ -27,6 +27,8 @@ export default function HeaderItem({
 }: Props) {
   const columns = useColumnStore((state) => state.columns);
   const setColumns = useColumnStore((state) => state.setColumns);
+  const editingKey = useColumnStore((state) => state.editingKey);
+  const setEditingKey = useColumnStore((state) => state.setEditingKey);
 
   const {
     attributes,
@@ -41,35 +43,40 @@ export default function HeaderItem({
     sortKey, 
     sortDirection, 
     setSortKey, 
-    setSortDirection,
-    selectedTag,
+    setSortDirection 
   } = useSheetStore();
 
   const col = column ?? columns[index];
   const widthRatio = col?.widthRatio ?? 0.2;
-  const currentWidthPx = Math.round(containerWidth * col.widthRatio);
-
+  const currentWidthPx = Math.round(containerWidth * widthRatio);
   const initialWidthPx = useRef(currentWidthPx);
+  const divRef = useRef<HTMLDivElement | null>(null); 
+
+  const isEditing = col.key === editingKey;
+  const [tempHeader, setTempHeader] = useState(col.header ?? '');
+
+  // 👉 드래그 중 초기 너비 저장
   useEffect(() => {
     if (isDragging) {
       initialWidthPx.current = currentWidthPx;
     }
   }, [isDragging, currentWidthPx]);
 
+  // ✅ 실측 너비 측정 후 store 반영
   useEffect(() => {
-    if (!isOverlay && col && col.widthRatio && containerWidth > 0) {
-      const newPixelWidth = Math.round(containerWidth * col.widthRatio);
+    if (!isOverlay && divRef.current) {
+      const actualWidth = divRef.current.offsetWidth;
 
-      if (col.pixelWidth !== newPixelWidth) {
+      if (Math.abs((col.pixelWidth ?? 0) - actualWidth) > 1) {
         const next = [...columns];
         next[index] = {
           ...next[index],
-          pixelWidth: newPixelWidth,
+          pixelWidth: actualWidth,
         };
         setColumns(next);
       }
     }
-  }, [containerWidth, columns, index, col, isOverlay, setColumns]);
+  }, [containerWidth, isDragging, columns, col.pixelWidth, index, setColumns, isOverlay]);
 
   const widthPx = isDragging ? initialWidthPx.current : currentWidthPx;
 
@@ -97,21 +104,19 @@ export default function HeaderItem({
       const deltaX = moveEvent.clientX - startX;
       let newWidthPx = startWidthPx + deltaX;
 
-        if (newWidthPx < 110) newWidthPx = 110; // 최소 너비 제한
+      if (newWidthPx < 110) newWidthPx = 110;
 
-      let newRatio = newWidthPx / containerWidth; 
+      let newRatio = newWidthPx / containerWidth;
 
       const otherRatiosSum = columns.reduce((sum, col, i) => {
         if (i === index) return sum;
         return sum + (col.widthRatio ?? 0.1);
       }, 0);
-
       const maxAllowed = 1 - otherRatiosSum;
-
-      if (newRatio > maxAllowed ) newRatio = maxAllowed;
+      if (newRatio > maxAllowed) newRatio = maxAllowed;
 
       const next = [...columns];
-      next[index] = { ...next[index], widthRatio: newRatio};
+      next[index] = { ...next[index], widthRatio: newRatio };
       setColumns(next);
     };
 
@@ -124,40 +129,47 @@ export default function HeaderItem({
     window.addEventListener('mouseup', onMouseUp);
   };
 
-    const handleSort = (key: keyof RowData) => {
-      if (sortKey === key) {
-        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-      } else {
-        setSortKey(key);
-        setSortDirection("asc");
-      }
-    };
+  const handleSort = (key: keyof RowData) => {
+    if (sortKey === key) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDirection('asc');
+    }
+  };
 
-      const clickTimer = useRef<number | null>(null);
-      const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const clickTimer = useRef<number | null>(null);
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
-      const handlePointerDown = (e: React.PointerEvent) => {
-        pointerDownPos.current = { x: e.clientX, y: e.clientY };
-      };
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  };
 
-      const handlePointerUp = (e: React.PointerEvent) => {
-        if (!pointerDownPos.current) return;
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!pointerDownPos.current) return;
+    const deltaX = Math.abs(e.clientX - pointerDownPos.current.x);
+    const deltaY = Math.abs(e.clientY - pointerDownPos.current.y);
+    const isClick = deltaX < 5 && deltaY < 5;
 
-        const deltaX = Math.abs(e.clientX - pointerDownPos.current.x);
-        const deltaY = Math.abs(e.clientY - pointerDownPos.current.y);
+    if (isClick && col?.key !== 'tag') {
+      handleSort(col?.key as keyof RowData);
+    }
+    pointerDownPos.current = null;
+  };
 
-        const isClick = deltaX < 5 && deltaY < 5;
-
-        if (isClick && col?.key !== 'tag') {
-          handleSort(col?.key as keyof RowData);
-        }
-
-        pointerDownPos.current = null;
-      };
+  const handleBlur = () => {
+    const next = [...columns];
+    next[index] = { ...next[index], header: tempHeader.trim() || '새 속성' };
+    setColumns(next);
+    setEditingKey(null);
+  };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        divRef.current = node;
+      }}
       {...attributes}
       {...listeners}
       className={cn(
@@ -171,28 +183,34 @@ export default function HeaderItem({
       style={style}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      //onPointerDown={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between w-full h-full">
-         {col?.key === 'tag' ? (
-          <TagFilterButton/>
+        {col?.key === 'tag' ? (
+          <TagFilterButton />
+        ) : isEditing ? (
+          <input
+            className="w-full px-2 py-1 rounded text-sm bg-gray-100 focus:outline-none"
+            value={tempHeader}
+            onChange={(e) => setTempHeader(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+            }}
+            autoFocus
+          />
         ) : (
-          col?.pixelWidth
+          <div>{col.header || '새 속성'}</div>
         )}
-
       </div>
 
       {!isOverlay && (
-
-        <div className=" w-[4px] h-[32px] bg-transparent group">
-
-            {/* 바 (리사이즈 핸들) */}
+        <div className="w-[4px] h-[32px] bg-transparent group">
+          <div
+            onMouseDown={handleMouseDown}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize bg-transparent group hover:bg-blue-100 transition-colors z-10"
+          >
             <div
-              onMouseDown={handleMouseDown}
-              onPointerDown={(e) => e.stopPropagation()}
-              className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize bg-transparent group hover:bg-blue-100 transition-colors z-10"
-            >
-              <div
               className="absolute top-[-12px] right-[3px] translate-x-1/2 w-0 h-0 
                         border-l-[9px] border-l-transparent 
                         border-r-[9px] border-r-transparent 
@@ -202,7 +220,7 @@ export default function HeaderItem({
               onMouseDown={handleMouseDown}
               onPointerDown={(e) => e.stopPropagation()}
             ></div>
-            </div>
+          </div>
         </div>
       )}
     </div>

@@ -81,8 +81,7 @@ export default function ColumnHeader() {
   };
 
     const handleAddColumn = () => {
-    const header = prompt('추가할 속성 이름을 입력하세요');
-    if (header) addColumn(header);
+    addColumn('새 속성');
   };
 
 
@@ -102,7 +101,7 @@ export default function ColumnHeader() {
         <div
           ref={containerRef}
           className="
-            flex border-b border-gray-300 w-full overflow-visible
+            flex border-b border-gray-300 w-full 
             sticky top-16 md:top-24
             z-10
             bg-white

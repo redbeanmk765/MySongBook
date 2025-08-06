@@ -6,19 +6,22 @@ const ALLOWED_DYNAMIC_KEYS = ['col_1', 'col_2', 'col_3', 'col_4', 'col_5'];
 interface ColumnStore {
   columns: Column[];
 
+  editingKey: string | null; // 현재 편집 중인 컬럼의 key
+
   setColumns: (newColumns: Column[]) => void;
   addColumn: (header: string) => void;
   updateColumn: (key: string, newHeader: string) => void;
   deleteColumn: (key: string) => void;
   updateWidth: (key: string, newWidth: number) => void;
   reorderColumns: (fromKey: string, toKey: string) => void;
+  setEditingKey: (key: string | null) => void;
 }
 
 export const useColumnStore = create<ColumnStore>((set, get) => ({
   columns: [
     { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1, pixelWidth: 110 },
     { key: 'singer', header: '가수', isFixed: true, widthRatio: 0.12, pixelWidth: 110 },
-    { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 110 },
+    { key: 'name', header: '곡명', isFixed:    true, widthRatio: 0.37, pixelWidth: 110 },
     { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 110 },
   ],
 
@@ -45,6 +48,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
           { key: availableKey, header, widthRatio: newColWidth, pixelWidth: 110 },
         ],
       });
+      get().setEditingKey(availableKey);
     } else {
       // 빈 공간 부족 → 기존 컬럼 비율 비례 축소 후 추가
       const neededSpace = newColWidth - freeSpace;
@@ -63,6 +67,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       });
 
       set({ columns: resizedColumns });
+      get().setEditingKey(availableKey); // 새로 추가된 컬럼을 바로 편집 가능 상태로 설정
     }
   },
 
@@ -96,4 +101,8 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     columns.splice(toIndex, 0, moved);
     set({ columns });
   },
+
+  editingKey: null,
+  setEditingKey: (key: string | null) => set({ editingKey: key }),
+
 }));
