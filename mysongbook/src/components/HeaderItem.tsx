@@ -137,8 +137,6 @@ export default function HeaderItem({
       setSortDirection('asc');
     }
   };
-
-  const clickTimer = useRef<number | null>(null);
   const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {

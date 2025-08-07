@@ -33,7 +33,6 @@ export default function ColumnHeader() {
   const addColumn = useColumnStore((state) => state.addColumn);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
 
-  // ✅ ResizeObserver로 containerWidth 측정
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -80,10 +79,9 @@ export default function ColumnHeader() {
     }
   };
 
-    const handleAddColumn = () => {
-    addColumn('새 속성');
+  const handleAddColumn = () => {
+    addColumn('새 속성', containerWidth);
   };
-
 
   return (
     <DndContext
@@ -116,20 +114,34 @@ export default function ColumnHeader() {
             />
           ))}
 
-           <button
-              onClick={handleAddColumn}
-              className="
-                flex items-center justify-center
-                h-6 w-6 my-auto ml-1
-                text-sm font-semibold
-                text-gray-500 hover:text-black
-                rounded-md hover:bg-gray-200
-                transition
-              "
-              title="속성 추가"
-            >
-              +
-            </button>
+          <button
+            onClick={handleAddColumn}
+            className="
+              flex items-center justify-center
+              h-6 w-6 min-w-[24px] my-auto ml-1
+              text-sm font-semibold
+              text-gray-500 hover:text-black
+              rounded-md hover:bg-gray-200
+              transition
+            "
+            title="속성 추가"
+          >
+            +
+          </button>
+          <button
+            onClick={handleAddColumn}
+            className="
+              flex items-center justify-center
+              h-6 w-6 min-w-[24px] my-auto ml-1
+              text-sm font-semibold
+              text-gray-500 hover:text-black
+              rounded-md hover:bg-gray-200
+              transition
+            "
+            title="속성 추가"
+          >
+            +
+          </button>
         </div>
       </SortableContext>
 
@@ -145,7 +157,5 @@ export default function ColumnHeader() {
         ) : null}
       </DragOverlay>
     </DndContext>
-    
   );
 }
-
