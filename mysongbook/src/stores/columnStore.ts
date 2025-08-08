@@ -7,8 +7,8 @@ interface ColumnStore {
   columns: Column[];
   editingKey: string | null;
 
-  setColumns: (newColumns: Column[]) => void;
-  addColumn: (header: string, containerWidth: number) => void;  // containerWidth 추가
+  setColumns: (updater: ((prev: Column[]) => Column[]) | Column[]) => void;
+  addColumn: (header: string, containerWidth: number) => void;
   updateColumn: (key: string, newHeader: string) => void;
   deleteColumn: (key: string) => void;
   updateWidth: (key: string, newWidth: number) => void;
@@ -25,7 +25,12 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 110 },
   ],
 
-  setColumns: (newColumns) => set({ columns: newColumns }),
+  setColumns: (updater) =>
+    set((state) => {
+      const nextColumns =
+        typeof updater === 'function' ? updater(state.columns) : updater;
+      return { columns: nextColumns };
+    }),
 
   addColumn: (header, containerWidth) => {
     const columns = get().columns;
@@ -43,21 +48,18 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     const freeRatio = 1 - totalRatio;
 
     if (freeRatio >= newColRatio) {
-      // 충분한 여유 공간 있을 때는 그냥 추가
-      set({
+      set((state) => ({
         columns: [
-          ...columns,
+          ...state.columns,
           { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
         ],
-      });
+      }));
       get().setEditingKey(availableKey);
       return;
     }
 
-    // 최소 비율: 110px 대비
     const minRatio = newColPx / containerWidth;
 
-    // 줄일 수 있는 컬럼들 (너비Ratio가 최소비율 초과하는 컬럼)
     const shrinkable = columns.filter((col) => col.widthRatio > minRatio);
     const shrinkableCapacity = shrinkable.reduce((sum, col) => {
       const possible = col.widthRatio - minRatio;
@@ -69,7 +71,6 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       return;
     }
 
-    // 줄일 수 있는 컬럼 비율만큼 비례해서 너비 줄이기
     const resizedShrinkables = shrinkable.map((col) => {
       const possible = col.widthRatio - minRatio;
       const shrinkAmount = (possible / shrinkableCapacity) * newColRatio;
@@ -79,10 +80,8 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       };
     });
 
-    // 줄일 수 없는 컬럼 (이미 최소비율 이하)
     const nonShrinkables = columns.filter((col) => col.widthRatio <= minRatio);
 
-    // 새 컬럼 추가
     const newColumns = [
       ...resizedShrinkables,
       ...nonShrinkables,

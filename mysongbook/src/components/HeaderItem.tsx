@@ -87,8 +87,7 @@ export default function HeaderItem({
     userSelect: 'none',
     width: `${widthPx}px`,
     minWidth: '110px',
-    maxWidth: `${widthPx}px`,
-    flexShrink: 0,
+    flexShrink: 1,
     opacity: isDragging ? 0 : 1,
     pointerEvents: isDragging ? 'none' : 'auto',
   };
@@ -175,7 +174,7 @@ export default function HeaderItem({
         'select-none px-2',
         'transition-colors duration-150',
         'z-10',
-        'flex-shrink-0',
+        'flex-shrink',
         'h-8'
       )}
       style={style}
@@ -183,7 +182,7 @@ export default function HeaderItem({
       onPointerUp={handlePointerUp}
     >
       <div className="flex items-center justify-between w-full h-full">
-        {col?.key === 'tag' ? (
+         {col?.key === 'tag' ? (
           <TagFilterButton />
         ) : isEditing ? (
           <input
@@ -198,7 +197,7 @@ export default function HeaderItem({
           />
         ) : (
           <div>{col.header || '새 속성'}</div>
-        )}
+        )} 
       </div>
 
       {!isOverlay && (
