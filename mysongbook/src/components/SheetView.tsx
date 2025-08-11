@@ -46,7 +46,7 @@ export function SheetView() {
 
       {/* ✅ scrollRef 내부에 Header + Table */}
       <div className="relative bg-white rounded-lg shadow-md mx-6 pl-8 pr-8">
-        <div ref={scrollRef} className="overflow-x-auto">
+        <div ref={scrollRef} >
           <div className="min-w-full">
             {/* <ColumnHeader /> */}
             <SheetTable isEditable={isEditable} />
@@ -54,8 +54,6 @@ export function SheetView() {
         </div>
       </div>
 
-      {/* 하단 커스텀 스크롤바 */}
-      <HorizontalScrollbar scrollRef={scrollRef} />
     </div>
   );
 }

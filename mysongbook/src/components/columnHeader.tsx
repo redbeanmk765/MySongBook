@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import HeaderItem from './HeaderItem';
 import {
@@ -83,6 +83,7 @@ export default function ColumnHeader() {
     addColumn('새 속성', containerWidth);
   };
 
+
   return (
     <DndContext
       sensors={sensors}
@@ -96,10 +97,10 @@ export default function ColumnHeader() {
         items={columns.map((col) => col.key)}
         strategy={horizontalListSortingStrategy}
       >
-        <div
-          ref={containerRef}
+          <div
+            ref={containerRef}
           className="
-            flex border-b border-gray-300 w-full 
+            flex w-full 
             sticky top-16 md:top-24
             z-10
             bg-white
@@ -110,7 +111,7 @@ export default function ColumnHeader() {
               key={col.key}
               id={col.key}
               index={index}
-              containerWidth={containerWidth}
+              containerWidth={containerWidth -56}
             />
           ))}
 
@@ -150,7 +151,7 @@ export default function ColumnHeader() {
           <HeaderItem
             id={activeColumn.key}
             index={-1}
-            containerWidth={containerWidth}
+            containerWidth={containerWidth -56}
             column={activeColumn}
             isOverlay
           />

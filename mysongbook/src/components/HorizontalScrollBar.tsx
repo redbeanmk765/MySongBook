@@ -14,8 +14,8 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [maxScrollLeft, setMaxScrollLeft] = useState(0);
   const [showScrollbar, setShowScrollbar] = useState(false);
+  const [trackWidth, setTrackWidth] = useState(0);
 
-  // 스크롤 상태 업데이트 함수
   const updateScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -28,9 +28,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     updateScroll();
-
     el.addEventListener("scroll", updateScroll);
 
     const resizeObserver = new ResizeObserver(() => {
@@ -50,19 +48,29 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     };
   }, [scrollRef, updateScroll]);
 
+  useEffect(() => {
+    const trackElement = trackRef.current;
+    if (!trackElement) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setTrackWidth(entry.contentRect.width);
+    });
+    observer.observe(trackElement);
+    return () => observer.disconnect();
+  }, [showScrollbar]);
+
   const onThumbMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     dragging.current = true;
 
-    if (trackRef.current) {
+    if (trackRef.current && scrollRef.current) {
       const trackRect = trackRef.current.getBoundingClientRect();
       const scrollRatio = maxScrollLeft > 0 ? scrollLeft / maxScrollLeft : 0;
       const thumbWidthPx = Math.max(
-        Math.min(scrollRef.current!.clientWidth / scrollRef.current!.scrollWidth, 1) * trackRect.width,
+        Math.min(scrollRef.current.clientWidth / scrollRef.current.scrollWidth, 1) * trackRect.width,
         24
       );
       const thumbLeft = scrollRatio * (trackRect.width - thumbWidthPx);
-
       draggingOffset.current = e.clientX - trackRect.left - thumbLeft;
     }
 
@@ -74,23 +82,16 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     if (!dragging.current || !trackRef.current || !scrollRef.current) return;
 
     const trackRect = trackRef.current.getBoundingClientRect();
-
     let posX = e.clientX - trackRect.left - draggingOffset.current;
-
     const thumbWidthPx = Math.max(
       Math.min(scrollRef.current.clientWidth / scrollRef.current.scrollWidth, 1) * trackRect.width,
       24
     );
-
     posX = Math.max(0, Math.min(posX, trackRect.width - thumbWidthPx));
-
     const maxThumbLeft = trackRect.width - thumbWidthPx;
-
-    const scrollRatio = posX / maxThumbLeft;
-    const newScrollLeft = scrollRatio * maxScrollLeft;
-
-    scrollRef.current.scrollLeft = newScrollLeft;
-    setScrollLeft(newScrollLeft);
+    const scrollRatio = maxThumbLeft > 0 ? posX / maxThumbLeft : 0;
+    scrollRef.current.scrollLeft = scrollRatio * maxScrollLeft;
+    
   };
 
   const onMouseUp = () => {
@@ -99,21 +100,13 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     document.removeEventListener("mouseup", onMouseUp);
   };
 
-  // 트랙과 뷰포트, 스크롤 너비 얻기
   const scrollEl = scrollRef.current;
-  const trackEl = trackRef.current;
-
   const clientWidth = scrollEl?.clientWidth ?? 0;
-  const scrollWidth = scrollEl?.scrollWidth ?? 1; // 0 방지
-  const trackWidth = trackEl?.clientWidth ?? 300;
-
+  const scrollWidth = scrollEl?.scrollWidth ?? 1;
   const viewportRatio = Math.min(clientWidth / scrollWidth, 1);
   const thumbWidthPx = Math.max(viewportRatio * trackWidth, 24);
-
   const maxThumbLeft = trackWidth - thumbWidthPx;
-
   const scrollRatioVal = maxScrollLeft > 0 ? scrollLeft / maxScrollLeft : 0;
-
   const thumbLeft = scrollRatioVal * maxThumbLeft;
 
   if (!showScrollbar) return null;
@@ -126,9 +119,10 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
         position: "fixed",
         bottom: 0,
         left: 0,
-        width: "calc(100vw - 16px)",
+        width: "100vw",
         height: 16,
         backgroundColor: "rgba(255,255,255,1.0)",
+        borderTop: "1px solid #ccc", // 하단 가로줄
         zIndex: 9999,
         userSelect: "none",
       }}
@@ -144,6 +138,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
           height: "60%",
           borderRadius: 8,
           userSelect: "none",
+          cursor: "pointer",
           transition: "background-color 0.15s ease-in-out",
         }}
       />
