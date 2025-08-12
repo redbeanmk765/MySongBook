@@ -61,7 +61,7 @@ export default function sheet() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+       <Header /> 
       <SheetView />
     </div>
 

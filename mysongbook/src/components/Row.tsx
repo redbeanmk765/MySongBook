@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { RowData } from "@/types/RowData";
 import GenerateTd from "./GenerateTd";
 import { useSheetStore } from "@/stores/sheetStore";
-import { useTagColorStore } from '@/stores/tagColorStore';
 import { useColumnStore } from '@/stores/columnStore';
 import clsx from 'clsx'; // tailwind 클래스를 조건부로 적용하기 위해 clsx를 사용합니다.
 
@@ -10,7 +9,6 @@ interface RowProps {
   data: RowData;
   tagList: string[];
   isEditable: boolean;
-  containerWidth: number; 
   isLastRow: boolean; // 마지막 행인지 여부를 나타내는 prop
 }
 
@@ -18,7 +16,6 @@ export default function Row({
   data,
   tagList = [],
   isEditable,
-  containerWidth,
   isLastRow,
 }: RowProps) {
   const { editingCell, setEditingCell, updateRow, deleteRow } = useSheetStore();
