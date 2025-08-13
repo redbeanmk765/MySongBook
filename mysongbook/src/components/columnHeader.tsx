@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import HeaderItem from './HeaderItem';
 import {
@@ -25,7 +25,11 @@ import {
 } from '@dnd-kit/sortable';
 import { Column } from '@/types/Column';
 
-export default function ColumnHeader() {
+interface ColumnHeaderProps {
+  scrollLeft: number;
+}
+
+export default function ColumnHeader({ scrollLeft }: ColumnHeaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const columns = useColumnStore((state) => state.columns);
@@ -35,30 +39,18 @@ export default function ColumnHeader() {
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setContainerWidth(Math.round(entry.contentRect.width));
       }
     });
-
     observer.observe(containerRef.current);
-
     return () => observer.disconnect();
   }, []);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 5
-      }
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 5
-      }
-    })
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -70,7 +62,6 @@ export default function ColumnHeader() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveColumn(null);
-
     if (over && active.id !== over.id) {
       const oldIndex = columns.findIndex((col) => col.key === active.id);
       const newIndex = columns.findIndex((col) => col.key === over.id);
@@ -82,7 +73,6 @@ export default function ColumnHeader() {
   const handleAddColumn = () => {
     addColumn('새 속성', containerWidth);
   };
-
 
   return (
     <DndContext
@@ -97,48 +87,30 @@ export default function ColumnHeader() {
         items={columns.map((col) => col.key)}
         strategy={horizontalListSortingStrategy}
       >
-          <div
-            ref={containerRef}
-          className="
-            flex w-full 
-            sticky top-16 md:top-24
-            z-10
-            bg-white
-          "
+        <div
+          ref={containerRef}
+          className="flex w-full sticky top-16 md:top-24 z-10 bg-white"
         >
           {columns.map((col, index) => (
             <HeaderItem
               key={col.key}
               id={col.key}
               index={index}
-              containerWidth={containerWidth -56}
+              containerWidth={containerWidth - 56}
+              scrollLeft={scrollLeft} // 전달
             />
           ))}
 
           <button
             onClick={handleAddColumn}
-            className="
-              flex items-center justify-center
-              h-6 w-6 min-w-[24px] my-auto ml-1
-              text-sm font-semibold
-              text-gray-500 hover:text-black
-              rounded-md hover:bg-gray-200
-              transition
-            "
+            className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
             title="속성 추가"
           >
             +
           </button>
           <button
             onClick={handleAddColumn}
-            className="
-              flex items-center justify-center
-              h-6 w-6 min-w-[24px] my-auto ml-1
-              text-sm font-semibold
-              text-gray-500 hover:text-black
-              rounded-md hover:bg-gray-200
-              transition
-            "
+            className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
             title="속성 추가"
           >
             +
@@ -147,15 +119,16 @@ export default function ColumnHeader() {
       </SortableContext>
 
       <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
-        {activeColumn ? (
+        {activeColumn && (
           <HeaderItem
             id={activeColumn.key}
             index={-1}
-            containerWidth={containerWidth -56}
+            containerWidth={containerWidth - 56}
             column={activeColumn}
             isOverlay
+            scrollLeft={scrollLeft}
           />
-        ) : null}
+        )}
       </DragOverlay>
     </DndContext>
   );

@@ -28,14 +28,14 @@ export function SheetView() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="mx-6 py-10">
       {/* 상단 에디터 */}
-      <div className="mb-8 p-6 rounded-lg bg-white shadow-md">
+      <div className="mx-6 mb-8 p-6 rounded-lg bg-white shadow-md">
         <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={isEditable} />
       </div>
 
       {/* 제목 및 모드 전환 버튼 */}
-      <div className="flex justify-between items-center mb-4 px-6">
+      <div className="flex justify-between items-center  mb-4 px-6">
         <h1 className="text-2xl font-bold">My Song Book</h1>
         {isAdmin && (
           <Button onClick={() => setMode(mode === "edit" ? "read" : "edit")}>

@@ -1,7 +1,7 @@
 // components/SheetTable/SheetTable.tsx
 "use client";
 
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Row from "@/components/Row";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { useSheetStore } from "@/stores/sheetStore";
@@ -156,14 +156,14 @@ export function SheetTable({ isEditable }: SheetTableProps) {
         fixedOffset={-32}
         scrollLeft={scrollLeft}
       >
-        <ColumnHeader />
+        <ColumnHeader scrollLeft={scrollLeft} />
       </StickyTableHeader>
 
       {/* 테이블 내용 영역 */}
       <div
         ref={tableContentContainerRef}
         style={{ overflowX: "hidden", minWidth: "100%" }}
-        className="no-scrollbar px-6"
+        className="px-6"
       >
         {slicedData.map((row, index) => (
           <Row

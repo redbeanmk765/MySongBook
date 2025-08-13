@@ -40,11 +40,12 @@ export function useStickyHeader(
         width: parentWidth,
         left: parentLeft,
         willChange: "transform, width",
+        top: 64,
       }
     : {};
 
   const headerClassName = isHeaderFixed
-    ? "fixed top-[64px] z-10 bg-white border-b border-gray-300"
+    ? "fixed z-10 bg-white border-b border-gray-300"
     : "relative";
 
   return { headerRef, isHeaderFixed, headerHeight, headerStyle, headerClassName };

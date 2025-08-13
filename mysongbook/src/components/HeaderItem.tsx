@@ -14,6 +14,7 @@ interface Props {
   id: string;
   index: number;
   containerWidth: number;
+  scrollLeft: number; // ★ 추가
   column?: Column;
   isOverlay?: boolean;
 }
@@ -22,6 +23,7 @@ export default function HeaderItem({
   id,
   index,
   containerWidth,
+  scrollLeft, // ★ 받기
   column,
   isOverlay = false,
 }: Props) {
@@ -55,18 +57,15 @@ export default function HeaderItem({
   const isEditing = col.key === editingKey;
   const [tempHeader, setTempHeader] = useState(col.header ?? '');
 
-  // 👉 드래그 중 초기 너비 저장
   useEffect(() => {
     if (isDragging) {
       initialWidthPx.current = currentWidthPx;
     }
   }, [isDragging, currentWidthPx]);
 
-  // ✅ 실측 너비 측정 후 store 반영
   useEffect(() => {
     if (!isOverlay && divRef.current) {
       const actualWidth = divRef.current.offsetWidth;
-
       if (Math.abs((col.pixelWidth ?? 0) - actualWidth) > 1) {
         const next = [...columns];
         next[index] = {
@@ -80,8 +79,13 @@ export default function HeaderItem({
 
   const widthPx = isDragging ? initialWidthPx.current : currentWidthPx;
 
+  // ★ transform + scrollLeft 통합
+  const combinedTransform = transform
+    ? `translate3d(${transform.x - scrollLeft}px, ${transform.y}px, 0)`
+    : `translateX(${-scrollLeft}px)`;
+
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    transform: combinedTransform,
     transition,
     cursor: isDragging ? 'grabbing' : 'grab',
     userSelect: 'none',
