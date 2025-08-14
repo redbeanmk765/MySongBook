@@ -21,7 +21,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     if (!el) return;
     const scrollable = el.scrollWidth > el.clientWidth;
     setScrollLeft(el.scrollLeft);
-    setMaxScrollLeft(el.scrollWidth - el.clientWidth);
+    setMaxScrollLeft(el.scrollWidth - el.clientWidth + 16);
     setShowScrollbar(scrollable);
   }, [scrollRef]);
 
@@ -119,7 +119,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
         position: "fixed",
         bottom: 0,
         left: 0,
-        width: "100vw",
+        width: "calc(100vw - 6px)",
         height: 16,
         backgroundColor: "rgba(255,255,255,1.0)",
         borderTop: "1px solid #ccc", // 하단 가로줄

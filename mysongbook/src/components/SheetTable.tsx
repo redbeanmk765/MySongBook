@@ -13,6 +13,7 @@ import { StickyTableHeader } from "./StickyTableHeader";
 function useContainerMeasurements() {
   const parentContainerRef = React.useRef<HTMLDivElement>(null);
   const tableContentContainerRef = React.useRef<HTMLDivElement>(null);
+  const columnHeaderRef = React.useRef<HTMLDivElement | null>(null);
 
   const [parentWidth, setParentWidth] = useState(0);
   const [parentLeft, setParentLeft] = useState(0);
@@ -98,6 +99,8 @@ export function SheetTable({ isEditable }: SheetTableProps) {
     scrollLeft,
   } = useContainerMeasurements();
 
+  const columnHeaderRef = React.useRef<HTMLDivElement | null>(null);
+
   const tagList = getTagList();
 
   const sortedData = useMemo(
@@ -149,23 +152,25 @@ export function SheetTable({ isEditable }: SheetTableProps) {
       </div>
 
       {/* 고정 헤더 */}
-      <StickyTableHeader
-        parentWidth={parentWidth}
-        parentLeft={parentLeft}
-        parentTop={parentTop}
-        fixedOffset={-32}
-        scrollLeft={scrollLeft}
-      >
-        <ColumnHeader scrollLeft={scrollLeft} />
-      </StickyTableHeader>
+      <div>
+        <StickyTableHeader
+          parentWidth={parentWidth}
+          parentLeft={parentLeft}
+          parentTop={parentTop}
+          fixedOffset={-32}
+          scrollLeft={scrollLeft}
+        >
+          <ColumnHeader ref={columnHeaderRef} scrollLeft={scrollLeft} />
+        </StickyTableHeader>
+      </div>
 
       {/* 테이블 내용 영역 */}
       <div
         ref={tableContentContainerRef}
-        style={{ overflowX: "hidden", minWidth: "100%" }}
+        style={{ overflowX: "hidden", minWidth: "100%", paddingRight: 52  }}
         className="px-6"
       >
-        {slicedData.map((row, index) => (
+        {slicedData.map((row, index) => ( 
           <Row
             key={row.id}
             data={row}
