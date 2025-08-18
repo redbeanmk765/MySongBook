@@ -31,6 +31,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Column } from '@/types/Column';
 import ColumnEditorPanel from './ColumnEditorPanel';
+import { button } from '@nextui-org/react';
 
 interface ColumnHeaderProps {
   scrollLeft: number;
@@ -41,6 +42,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     const columns = useColumnStore((state) => state.columns);
     const setColumns = useColumnStore((state) => state.setColumns);
@@ -137,7 +139,8 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
             </button>
 
             <button
-              onClick={() => setIsPanelOpen(true)}
+              ref={buttonRef}
+              onClick={() => setIsPanelOpen(!isPanelOpen)}
               className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
               title="속성 편집"
             >
@@ -163,7 +166,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
           )}
         </DragOverlay>
 
-        <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} />
+        <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} buttonRef={buttonRef}/>
       </DndContext>
 
       
