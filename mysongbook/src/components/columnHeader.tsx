@@ -31,7 +31,6 @@ import {
 } from '@dnd-kit/sortable';
 import { Column } from '@/types/Column';
 import ColumnEditorPanel from './ColumnEditorPanel';
-import { button } from '@nextui-org/react';
 
 interface ColumnHeaderProps {
   scrollLeft: number;

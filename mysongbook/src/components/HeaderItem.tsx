@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useColumnStore } from '@/stores/columnStore';
 import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { Column } from '@/types/Column';
 import { RowData } from '@/types/RowData';
@@ -14,7 +13,7 @@ interface Props {
   id: string;
   index: number;
   containerWidth: number;
-  scrollLeft: number; // ★ 추가
+  scrollLeft: number;
   column?: Column;
   isOverlay?: boolean;
 }
@@ -23,7 +22,7 @@ export default function HeaderItem({
   id,
   index,
   containerWidth,
-  scrollLeft, // ★ 받기
+  scrollLeft,
   column,
   isOverlay = false,
 }: Props) {
