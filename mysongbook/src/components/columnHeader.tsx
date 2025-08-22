@@ -118,7 +118,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
                 id={col.key}
                 index={index}
                 containerWidth={containerWidth - 56}
-                scrollLeft={scrollLeft} // 전달
+                scrollLeft={scrollLeft} 
               />
             ))}
 

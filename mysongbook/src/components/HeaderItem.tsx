@@ -199,7 +199,7 @@ export default function HeaderItem({
             autoFocus
           />
         ) : (
-          <div>{col.header || '새 속성'}</div>
+          <div className='tr'>{col.header || '새 속성'}</div>
         )} 
       </div>
 

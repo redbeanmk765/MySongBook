@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useColumnStore } from "@/stores/columnStore"
 import { Column } from "@/types/Column";
-import { closestCenter, DndContext, DragEndEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors , MeasuringStrategy } from "@dnd-kit/core";
 import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
@@ -58,6 +58,9 @@ export default function ColumnEditorPanel({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+       console.log("드래그 종료. Active ID:", active.id);
+  console.log("드롭된 Over ID:", over?.id);   
     setActiveColumn(null);
 
     if (over && active.id !== over.id) {
@@ -72,7 +75,7 @@ export default function ColumnEditorPanel({
     <div
       ref={panelRef}
       className={cn(
-        'absolute top-10 right-0 w-[380px] min-h-[380px] h-auto',
+        'absolute top-10 right-0 w-[320px] min-h-[380px] h-auto',
         'bg-white rounded-lg p-4 ',
         'duration-500 border ease-in-out ',
         'will-change-transform will-change-opacity',
@@ -87,6 +90,12 @@ export default function ColumnEditorPanel({
         onDragEnd={handleDragEnd}
         modifiers={[restrictToParentElement, restrictToVerticalAxis]}
         autoScroll={false}
+          measuring={{
+            droppable: {
+              strategy: MeasuringStrategy.Always,
+            },
+            
+          }}
       >
         <div className="flex justify-between items-center ">
           test
@@ -109,6 +118,16 @@ export default function ColumnEditorPanel({
             ))}
           </div>
         </SortableContext>
+
+        <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none', zIndex: 1000 }}>
+          {activeColumn ? (
+            <PanelColumnItem
+              id={activeColumn.key}
+              col={activeColumn}
+              isOverlay
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   )
