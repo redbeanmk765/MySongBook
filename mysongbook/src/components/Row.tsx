@@ -31,7 +31,7 @@ export default function Row({
   }, [columns]);
 
   const rowClassName = clsx(
-    "flex border-t border-gray-200 bg-white text-sm",
+    "flex border-t border-gray-200 bg-[rgb(255,255,255)] text-sm",
     {
       "border-b border-gray-200": isLastRow, // 마지막 행일 때만 border-b 추가
     }
@@ -43,6 +43,7 @@ export default function Row({
       style={{ minWidth: `${totalContentWidth}px` }}
     >
       {columns.map((col, index) => (
+        col.isHidden ? null : (
         <GenerateTd
           key={index}
           data={data}
@@ -56,7 +57,7 @@ export default function Row({
           isEditable={isEditable}
           pixelWidth={col.pixelWidth}
         />
-      ))}
+      )))}
     </div>
   );
 }

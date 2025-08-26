@@ -5,6 +5,8 @@ import { useColumnStore } from "@/stores/columnStore";
 import { Column } from "@/types/Column";
 import { useSortable } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
+import { CSS } from "@dnd-kit/utilities";
+import { Eye, EyeOff, GripVertical} from 'lucide-react';
 
 interface PanelColumnItemProps {
   id: string;   
@@ -17,32 +19,13 @@ export default function PanelColumnItem({
   col,
   isOverlay
 }: PanelColumnItemProps) {
-  const sortableProps = isOverlay ? null : useSortable({ id });
+  const sortable= isOverlay ? null : useSortable({ id });
  
 
   const updateColumn = useColumnStore((state) => state.updateColumn);
   const hideColumn = useColumnStore((state) => state.hideColumn);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-
-  // const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
-
-  // const handlePointerDown = (e: React.PointerEvent) => {
-  //   pointerDownPos.current = { x: e.clientX, y: e.clientY };
-  // };
-
-  // const handlePointerUp = (e: React.PointerEvent) => {
-  //   if (!pointerDownPos.current) return;
-  //   const deltaX = Math.abs(e.clientX - pointerDownPos.current.x);
-  //   const deltaY = Math.abs(e.clientY - pointerDownPos.current.y);
-  //   const isClick = deltaX < 5 && deltaY < 5;
-  //   if (isClick) {
-  //     setIsClick(true);
-  //   }
-
-  //   pointerDownPos.current = null;
-  // };
 
   useEffect(() => {
    if (inputRef.current) {
@@ -51,7 +34,7 @@ export default function PanelColumnItem({
   }, [isEditing]);
 
   const handleIsEditing = (): void => {
-    if (!(sortableProps?.isDragging))
+    if (!(sortable?.isDragging))
       setIsEditing(true);
   }
 
@@ -64,46 +47,59 @@ export default function PanelColumnItem({
     setIsEditing(false);
   }
 
+   const style = sortable
+    ? {
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: 'none',
+        opacity: sortable.isDragging ? 0.4 : 1,
+      }
+    : {};
+
+
   return (
     <div
-      ref={(node) => {
-          sortableProps?.setNodeRef(node);
-        }}
-        {...sortableProps?.attributes}
-        {...sortableProps?.listeners}
+      ref={ sortable?.setNodeRef}
+      style={style}   
+        {...sortable?.attributes}
+        {...sortable?.listeners}
         className={cn(
           'relative flex items-center border-gray-300 bg-white text-sm',
-          'select-none px-2',
+          'select-none pr-1',
           'transition-colors duration-150',
           'z-10',
           'flex-shrink',
           'h-8 w-full'
         )}
-        >
-      <div className="mt-4 space-y-2 w-full h-full">
+        > 
+      <div className="w-full h-full px-3">
         <div className="flex items-center justify-between bg-white rounded">
-          {!isEditing ? (
-            <span className="leading-none text-sm rounded p-2 mr-2 min-w-[80px] truncate hover:bg-gray-100 transition-colors"
-              onClick={handleIsEditing}>{col.header}</span>
-            ) : (
-            <input
-              type="text"
-              value={col.header}
-              ref={inputRef}
-              onChange={(e) => handleChange(col.key, e.target.value)}
-              onBlur={(e) => handleBlur(col.key, e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") inputRef.current?.blur();}}
-              className="leading-none text-sm rounded px-2 py-[7px] mr-2 min-w-[80px] truncate h-full">
+          <div className="flex items-center h-[28px]">
+            <GripVertical className="flex text-gray-400 h-5 w-5 mr-2 cursor-move"/>
+            {!isEditing ? (
+              <span className="flex items-center leading-none text-sm rounded  mr-2 min-w-[80px] h-[28px] truncate hover:bg-gray-100"
+                onClick={handleIsEditing}>
+                  {col.header}
+              </span>
+              ) : (
+              <input
+                type="text"
+                value={col.header}
+                ref={inputRef}
+                onChange={(e) => handleChange(col.key, e.target.value)}
+                onBlur={(e) => handleBlur(col.key, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") inputRef.current?.blur();}}
+                className="flex leading-none text-sm rounded max-w-[175px] min-w-[40px] h-[20px] truncate  border-gray-100">
 
-            </input>
-            )
-          }
+              </input>
+              )
+            }
+          </div>
           <button
             onClick={() => hideColumn(col.key)}
-            className="text-red-500 hover:text-red-700 min-w-[38px]"
           >
-            숨기기
+            {col.isHidden ? <EyeOff className="text-gray-500 h-[18px] w-[18px]"/> :
+              <Eye className="text-gray-500 h-[18px] w-[18px]"/>}
           </button>
         </div>
       </div>

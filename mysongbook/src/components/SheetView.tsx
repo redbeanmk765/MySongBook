@@ -6,8 +6,6 @@ import { SheetTable } from "./SheetTable";
 import { Button } from "@/components/ui/button";
 import { PartialBlock } from "@blocknote/core";
 import dynamic from "next/dynamic";
-import { HorizontalScrollbar } from "./HorizontalScrollBar";
-import ColumnHeader from "./ColumnHeader";
 
 const BlockNoteEditor = dynamic(() => import("./BlockNoteEditor"), { ssr: false });
 
@@ -30,7 +28,7 @@ export function SheetView() {
   return (
     <div className="mx-6 py-10">
       {/* 상단 에디터 */}
-      <div className="mx-6 mb-8 p-6 rounded-lg bg-white shadow-md">
+      <div className="mx-6 mb-8 p-6 rounded-2xl bg-white ">
         <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={isEditable} />
       </div>
 
@@ -45,7 +43,7 @@ export function SheetView() {
       </div>
 
       {/* ✅ scrollRef 내부에 Header + Table */}
-      <div className="relative bg-white rounded-lg shadow-md mx-6 pl-8 pr-8">
+      <div className="relative bg-white rounded-2xl  mx-6 pl-8 pr-8">
         <div ref={scrollRef} >
           <div className="min-w-full">
             {/* <ColumnHeader /> */}

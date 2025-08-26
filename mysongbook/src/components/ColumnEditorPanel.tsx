@@ -3,11 +3,12 @@
 import { cn } from "@/lib/utils";
 import { useColumnStore } from "@/stores/columnStore"
 import { Column } from "@/types/Column";
-import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors , MeasuringStrategy } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors , MeasuringStrategy, useDndMonitor } from "@dnd-kit/core";
 import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
-import PanelColumnItem from "./panelColumnItem";
+import PanelColumnItem from "./panelColumnItem";  
+
 
 interface ColumnEditorPanelProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export default function ColumnEditorPanel({
   const hideColumn = useColumnStore((state) => state.hideColumn);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [overlayPos, setOverlayPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -54,14 +56,21 @@ export default function ColumnEditorPanel({
     const id = event.active.id as string;
     const col = columns.find((col) => col.key === id);
     setActiveColumn(col ?? null);
+
+    if (panelRef.current) {
+      const rect = panelRef.current.getBoundingClientRect();
+      setOverlayPos({
+        x: (event.activatorEvent as MouseEvent).clientX - rect.left,
+        y: (event.activatorEvent as MouseEvent).clientY - rect.top,
+      });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
-       console.log("드래그 종료. Active ID:", active.id);
-  console.log("드롭된 Over ID:", over?.id);   
+ 
     setActiveColumn(null);
+    setOverlayPos(null);
 
     if (over && active.id !== over.id) {
       const oldIndex = columns.findIndex((col) => col.key === active.id);
@@ -71,12 +80,22 @@ export default function ColumnEditorPanel({
     }
   };
 
-  return (
+  const handleDragMove = (event: any) => {
+    if (!panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setOverlayPos({
+      x: (event.activatorEvent as MouseEvent).clientX - rect.left,
+      y: (event.activatorEvent as MouseEvent).clientY - rect.top,
+    });
+  };
+
+
+  return (  
     <div
       ref={panelRef}
       className={cn(
-        'absolute top-10 right-0 w-[320px] min-h-[380px] h-auto',
-        'bg-white rounded-lg p-4 ',
+        'absolute top-8 right-0 w-[260px] min-h-[320px] h-auto',
+        'bg-white rounded-b-lg py-4 ',
         'duration-500 border ease-in-out ',
         'will-change-transform will-change-opacity',
         isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
@@ -87,6 +106,7 @@ export default function ColumnEditorPanel({
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         modifiers={[restrictToParentElement, restrictToVerticalAxis]}
         autoScroll={false}
@@ -97,37 +117,36 @@ export default function ColumnEditorPanel({
             
           }}
       >
-        <div className="flex justify-between items-center ">
-          test
+        <div className="flex justify-between items-center pl-4 pr-3 pb-3 relative">
+          <div className="absolute inset-x-0 bottom-0 border-b border-gray-300">
+            <div className="absolute right-0 top-[-2px] w-[12px] h-1.5  bg-white"></div>
+            <div className="absolute left-0 top-[-2px] w-[12px] h-1.5  bg-white"></div>
+          </div>
+          속성
           <button
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
           >
-            X
+            <span className="flex items-center justify-center hover:bg-gray-200 rounded h-6 w-6"> X </span>
           </button>
         </div>
+
+        <div className="py-2"></div>
+
         <SortableContext
           items={columns.map((col) => col.key)}
           strategy={verticalListSortingStrategy}
+          
         >
-          <div className="mt-4 space-y-2">
+          <div className="mt-2 relative">
             {columns.map((column, index) => (
               <PanelColumnItem id={column.key} col={column}/>
             ))}
           </div>
-        </SortableContext>
 
-        <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none', zIndex: 1000 }}>
-          {activeColumn ? (
-            <PanelColumnItem
-              id={activeColumn.key}
-              col={activeColumn}
-              isOverlay
-            />
-          ) : null}
-        </DragOverlay>
+        </SortableContext>
       </DndContext>
     </div>
   )

@@ -168,7 +168,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
       <div
         ref={tableContentContainerRef}
         style={{ overflowX: "hidden", minWidth: "100%", paddingRight: 52  }}
-        className="px-6"
+        className="px-6 min-h-[380px]"
       >
         {slicedData.map((row, index) => ( 
           <Row

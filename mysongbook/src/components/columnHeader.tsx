@@ -96,77 +96,82 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
 
 
     return (
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
-        autoScroll={false}
-      >
-        <SortableContext
-          items={columns.map((col) => col.key)}
-          strategy={horizontalListSortingStrategy}
+      <div className='w-full'>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+          autoScroll={false}
         >
-          <div
-            ref={containerRef}
-            className="flex w-full sticky top-16 md:top-24 z-10 bg-white"
+          <SortableContext
+            items={columns.map((col) => col.key)}
+            strategy={horizontalListSortingStrategy}
           >
-            {columns.map((col, index) => (
-              <HeaderItem
-                key={col.key}
-                id={col.key}
-                index={index}
-                containerWidth={containerWidth - 56}
-                scrollLeft={scrollLeft} 
-              />
-            ))}
-
             <div
-                style={{
-                  transform: `translateX(${-scrollLeft}px)`,
-                  display: 'flex'
-                }}
+              ref={containerRef}
+              className="flex w-full sticky top-16 md:top-24 z-10 bg-white"
             >
+              {columns.map((col, index) => (
+                col.isHidden ? null : (
+                <HeaderItem
+                  key={col.key}
+                  id={col.key}
+                  index={index}
+                  containerWidth={containerWidth - 56}
+                  scrollLeft={scrollLeft} 
+                />)
+              ))}
+
+              <div
+                  style={{
+                    transform: `translateX(${-scrollLeft}px)`,
+                    display: 'flex'
+                  }}
+              >
+
+                <button
+                onClick={handleAddColumn}
+                className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
+                title="속성 추가"
+              >
+                +
+              </button>
 
               <button
-              onClick={handleAddColumn}
-              className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
-              title="속성 추가"
-            >
-              +
-            </button>
+                ref={buttonRef}
+                onClick={() => setIsPanelOpen(!isPanelOpen)}
+                className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
+                title="속성 편집"
+              >
+                =
+              </button>
 
-            <button
-              ref={buttonRef}
-              onClick={() => setIsPanelOpen(!isPanelOpen)}
-              className="flex items-center justify-center h-6 w-6 min-w-[24px] my-auto ml-1 text-sm font-semibold text-gray-500 hover:text-black rounded-md hover:bg-gray-200 transition"
-              title="속성 편집"
-            >
-              =
-            </button>
+              </div>
 
+              
             </div>
+          </SortableContext>
 
-            
-          </div>
-        </SortableContext>
+          <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
+            {activeColumn && (
+              <HeaderItem
+                id={activeColumn.key}
+                index={-1}
+                containerWidth={containerWidth - 56}
+                column={activeColumn}
+                isOverlay
+                scrollLeft={scrollLeft}
+              />
+            )}
+          </DragOverlay>
 
-        <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
-          {activeColumn && (
-            <HeaderItem
-              id={activeColumn.key}
-              index={-1}
-              containerWidth={containerWidth - 56}
-              column={activeColumn}
-              isOverlay
-              scrollLeft={scrollLeft}
-            />
-          )}
-        </DragOverlay>
+         
+        </DndContext>
 
-        <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} buttonRef={buttonRef}/>
-      </DndContext>
+         <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} buttonRef={buttonRef}/>
+      </div>
 
       
     );

@@ -60,8 +60,8 @@ export default function sheet() {
   }, [undo, redo]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-       <Header /> 
+    <div className="min-h-screen bg-[rgb(249,249,251)]">
+      <Header /> 
       <SheetView />
     </div>
 
