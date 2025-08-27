@@ -6,7 +6,8 @@ import { Column } from "@/types/Column";
 import { useSortable } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
 import { CSS } from "@dnd-kit/utilities";
-import { Eye, EyeOff, GripVertical} from 'lucide-react';
+import { Eye, EyeOff, GripVertical, Trash2} from 'lucide-react';
+import { Input } from "./ui/input";
 
 interface PanelColumnItemProps {
   id: string;   
@@ -81,7 +82,7 @@ export default function PanelColumnItem({
                   {col.header}
               </span>
               ) : (
-              <input
+              <Input
                 type="text"
                 value={col.header}
                 ref={inputRef}
@@ -89,18 +90,21 @@ export default function PanelColumnItem({
                 onBlur={(e) => handleBlur(col.key, e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") inputRef.current?.blur();}}
-                className="flex leading-none text-sm rounded max-w-[175px] min-w-[40px] h-[20px] truncate  border-gray-100">
+                className="flex leading-none text-sm rounded max-w-[175px] min-w-[40px] h-[24px] truncate pl-0 focus-visible:ring-gray-400">
 
-              </input>
+              </Input>
               )
             }
           </div>
-          <button
-            onClick={() => hideColumn(col.key)}
-          >
-            {col.isHidden ? <EyeOff className="text-gray-500 h-[18px] w-[18px]"/> :
-              <Eye className="text-gray-500 h-[18px] w-[18px]"/>}
-          </button>
+          <div className="flex">
+              {col.isFixed ? null :  <Trash2 className="text-gray-500 h-[18px] w-[18px] mr-2"/>}
+            <button
+              onClick={() => hideColumn(col.key)}
+            >
+                {col.isHidden ? <EyeOff className="text-gray-500 h-[18px] w-[18px]"/> :
+                  <Eye className="text-gray-500 h-[18px] w-[18px]"/>}        
+            </button>
+          </div>
         </div>
       </div>
     </div>

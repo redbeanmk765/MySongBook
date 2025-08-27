@@ -8,7 +8,11 @@ import { useTagColorStore } from '@/stores/tagColorStore';
 import { useSheetStore } from "@/stores/sheetStore";
 import { useUIStore } from "@/stores/uiStore";
 
-export default function TagFilterButton() {
+interface TagFilterButtonProps {
+  isOverlay?: boolean;
+}
+
+export default function TagFilterButton({isOverlay=false }: TagFilterButtonProps) {
   const { isTagDropdownOpen: isOpen, setTagDropdownOpen: setIsOpen } = useUIStore();
   const { selectedTag, setSelectedTag } = useSheetStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,10 +66,11 @@ export default function TagFilterButton() {
         <BarsArrowDownIcon className="w-5 h-5 text-gray-700 ml-1" />
       </div>
 
-      {isOpen &&
+      {isOpen && !isOverlay &&
         createPortal(
           <div
             ref={dropdownRef}
+            onPointerDown={(e) => {e.stopPropagation(); e.preventDefault();}} 
             className="absolute z-10 w-32 max-h-48 overflow-y-auto bg-white border shadow"
             style={{ top: dropdownPos.top, left: dropdownPos.left }}
           >

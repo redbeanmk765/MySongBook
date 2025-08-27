@@ -74,7 +74,8 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
 
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+    <div  onMouseDown={(e) => {e.stopPropagation();}} 
+      className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">태그 설정</h3>
@@ -94,7 +95,7 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                         <input
                           type="text"
                           value={newTagName}
-                          onChange={(e) => setNewTagName(e.target.value)}
+                          onChange={(e) => setNewTagName(e.target.value)} 
                           onBlur={() => handleRename(tag)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") handleRename(tag);

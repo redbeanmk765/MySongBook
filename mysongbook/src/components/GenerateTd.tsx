@@ -50,10 +50,10 @@
       }
     }, [isEditingTd]);
 
-    const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const updateValue = (value: string) => {
       setEditingCell(null);
-      setEditedData({ ...editedData, [nameString]: event.target.value });
-      handleUpdate(data.id, { [fieldName]: event.target.value });
+      setEditedData({ ...editedData, [nameString]: value });
+      handleUpdate(data.id, { [fieldName]: value });
     };
 
     const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,15 +89,18 @@
             type="text"
             name={nameString}
             defaultValue={editedData[fieldName] ?? ""}
-            onBlur={handleBlur}
+            onBlur={(e) => updateValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") updateValue(e.currentTarget.value);
+            }}
             ref={inputRef}
-            className="block w-full min-w-0 box-border border-r h-8 text-left overflow-hidden whitespace-nowrap text-ellipsis "
+            className="flex w-full min-w-0 rounded h-8 overflow-hidden whitespace-nowrap text-ellipsis focus-visible:ring-gray-400"
           />
           )
         ) : (
           <span
             ref={spanRef}
-            className={"flex items-center w-full h-full min-w-0 text-left pl-4 cursor-pointer hover:bg-gray-100 " }
+            className={"flex items-center text-left pl-4 pr-2 w-full h-full cursor-pointer whitespace-normal break-all hover:bg-gray-100 " }
             data-id={data.id}
             data-field={fieldName}
             tabIndex={0}

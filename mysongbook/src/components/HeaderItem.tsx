@@ -186,7 +186,7 @@ export default function HeaderItem({
     >
       <div className="flex items-center justify-between w-full h-full">
          {col?.key === 'tag' ? (
-          <TagFilterButton />
+          <TagFilterButton isOverlay={isOverlay} />
         ) : isEditing ? (
           <input
             className="w-full px-2 py-1 rounded text-sm bg-gray-100 focus:outline-none"
