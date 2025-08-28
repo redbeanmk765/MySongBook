@@ -118,7 +118,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
   return (
     <div className="overflow-x-hidden" ref={parentContainerRef}>
       {/* 상단 타이틀 및 버튼 */}
-      <div className="flex items-center justify-between p-6 border-b">
+      {/* <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center space-x-6">
           <span className="text-lg font-semibold">노래 목록</span>
         </div>
@@ -149,7 +149,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* 고정 헤더 */}
       <div>
@@ -157,7 +157,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
           parentWidth={parentWidth}
           parentLeft={parentLeft}
           parentTop={parentTop}
-          fixedOffset={-32}
+          fixedOffset={64}
           scrollLeft={scrollLeft}
         >
           <ColumnHeader ref={columnHeaderRef} scrollLeft={scrollLeft} />

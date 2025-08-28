@@ -33,20 +33,19 @@ export function SheetView() {
       </div>
 
       {/* 제목 및 모드 전환 버튼 */}
-      <div className="flex justify-between items-center  mb-4 px-6">
+      {/* <div className="flex justify-between items-center  mb-4 px-6">
         <h1 className="text-2xl font-bold">My Song Book</h1>
         {isAdmin && (
           <Button onClick={() => setMode(mode === "edit" ? "read" : "edit")}>
             {mode === "edit" ? "읽기 모드로 전환" : "편집 모드로 전환"}
           </Button>
         )}
-      </div>
+      </div> */}
 
       {/* ✅ scrollRef 내부에 Header + Table */}
-      <div className="relative bg-white rounded-2xl  mx-6 pl-8 pr-8">
+      <div className="relative bg-white rounded-2xl pt-8 mx-6 pl-8 pr-8">
         <div ref={scrollRef} >
           <div className="min-w-full">
-            {/* <ColumnHeader /> */}
             <SheetTable isEditable={isEditable} />
           </div>
         </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useColumnStore } from '@/stores/columnStore';
 import { useSortable } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
 import { Column } from '@/types/Column';
@@ -26,10 +25,10 @@ export default function HeaderItem({
   column,
   isOverlay = false,
 }: Props) {
-  const columns = useColumnStore((state) => state.columns);
-  const setColumns = useColumnStore((state) => state.setColumns);
-  const editingKey = useColumnStore((state) => state.editingKey);
-  const setEditingKey = useColumnStore((state) => state.setEditingKey);
+  const columns = useSheetStore((state) => state.columns);
+  const setColumns = useSheetStore((state) => state.setColumns);
+  const editingKey = useSheetStore((state) => state.editingKey);
+  const setEditingKey = useSheetStore((state) => state.setEditingKey);
 
   const {
     attributes,

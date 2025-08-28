@@ -11,7 +11,6 @@ export default function sheet() {
   const {
     data,
     setData,
-    setOrigin,
     undo,
     redo,
   } = useSheetStore();
@@ -38,9 +37,8 @@ export default function sheet() {
       ];
 
       setData(initialData);
-      setOrigin(initialData);
     }
-  }, [data.length, setData, setOrigin]);
+  }, [data.length, setData]);
 
   // 키보드 이벤트 처리
   useEffect(() => {

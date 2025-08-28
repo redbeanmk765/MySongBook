@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { useColumnStore } from "@/stores/columnStore";
+import { useSheetStore } from "@/stores/sheetStore";
 import { Column } from "@/types/Column";
 import { useSortable } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
@@ -23,8 +23,9 @@ export default function PanelColumnItem({
   const sortable= isOverlay ? null : useSortable({ id });
  
 
-  const updateColumn = useColumnStore((state) => state.updateColumn);
-  const hideColumn = useColumnStore((state) => state.hideColumn);
+  const updateColumn = useSheetStore((state) => state.updateColumn);
+  const hideColumn = useSheetStore((state) => state.hideColumn);
+
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from "@/lib/utils";
-import { useColumnStore } from "@/stores/columnStore"
+import { useSheetStore } from "@/stores/sheetStore"
 import { Column } from "@/types/Column";
 import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors , MeasuringStrategy, useDndMonitor } from "@dnd-kit/core";
 import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
@@ -22,9 +22,10 @@ export default function ColumnEditorPanel({
   buttonRef
 }: ColumnEditorPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const columns = useColumnStore((state) => state.columns);
-  const setColumns = useColumnStore((state) => state.setColumns);
-  const hideColumn = useColumnStore((state) => state.hideColumn);
+  const columns = useSheetStore((state) => state.columns);
+  const setColumns = useSheetStore((state) => state.setColumns);
+  const hideColumn = useSheetStore((state) => state.hideColumn);
+  const reorderColumns = useSheetStore((state) => state.reorderColumns);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [overlayPos, setOverlayPos] = useState<{ x: number; y: number } | null>(null);
@@ -73,11 +74,8 @@ export default function ColumnEditorPanel({
     setOverlayPos(null);
 
     if (over && active.id !== over.id) {
-      const oldIndex = columns.findIndex((col) => col.key === active.id);
-      const newIndex = columns.findIndex((col) => col.key === over.id);
-      const newColumns = arrayMove(columns, oldIndex, newIndex);
-      setColumns(newColumns);
-    }
+        reorderColumns(active.id as string, over.id as string);
+      }
   };
 
   const handleDragMove = (event: any) => {

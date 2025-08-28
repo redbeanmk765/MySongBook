@@ -14,7 +14,7 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
   const { tagColors, setTagColor, setTagColors } = useTagColorStore();
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState("");
-  const renameTagInData = useSheetStore((state) => state.renameTagInData); // RowData의 tag 변경 함수
+  const renameTagInData = useSheetStore((state) => state.renameTag); // RowData의 tag 변경 함수
   const renameTag = useTagColorStore((state) => state.renameTag); // 색상 map 내부 이름 변경 함수
 
 

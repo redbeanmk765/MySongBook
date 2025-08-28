@@ -7,7 +7,7 @@ import React, {
   useState,
   useImperativeHandle,
 } from 'react';
-import { useColumnStore } from '@/stores/columnStore';
+import { useSheetStore } from '@/stores/sheetStore';
 import HeaderItem from './HeaderItem';
 import {
   DndContext,
@@ -43,9 +43,10 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
-    const columns = useColumnStore((state) => state.columns);
-    const setColumns = useColumnStore((state) => state.setColumns);
-    const addColumn = useColumnStore((state) => state.addColumn);
+    const columns = useSheetStore((state) => state.columns);
+    const setColumns = useSheetStore((state) => state.setColumns);
+    const addColumn = useSheetStore((state) => state.addColumn);
+    const reorderColumns = useSheetStore((state) => state.reorderColumns);
 
     const [activeColumn, setActiveColumn] = useState<Column | null>(null);
 
@@ -83,10 +84,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
       setActiveColumn(null);
 
       if (over && active.id !== over.id) {
-        const oldIndex = columns.findIndex((col) => col.key === active.id);
-        const newIndex = columns.findIndex((col) => col.key === over.id);
-        const newColumns = arrayMove(columns, oldIndex, newIndex);
-        setColumns(newColumns);
+        reorderColumns(active.id as string, over.id as string);
       }
     };
 

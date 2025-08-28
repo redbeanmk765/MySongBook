@@ -1,9 +1,11 @@
-import { create } from 'zustand';
+// stores/slices/columnSlice.ts
+import { StateCreator } from 'zustand';
 import { Column } from '@/types/Column';
+import { useHistoryStore } from '@/stores/historyStore';
 
 const ALLOWED_DYNAMIC_KEYS = ['col_1', 'col_2', 'col_3', 'col_4', 'col_5'];
 
-interface ColumnStore {
+export interface ColumnSlice {
   columns: Column[];
   editingKey: string | null;
 
@@ -17,24 +19,25 @@ interface ColumnStore {
   hideColumn: (key: string) => void;
 }
 
-export const useColumnStore = create<ColumnStore>((set, get) => ({
+export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, get) => ({
   columns: [
     { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1, pixelWidth: 110 },
     { key: 'singer', header: '가수', isFixed: true, widthRatio: 0.12, pixelWidth: 110 },
     { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 110 },
     { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 110 },
   ],
+  editingKey: null,
+  setEditingKey: (key: string | null) => set({ editingKey: key }),
 
   setColumns: (updater) =>
-    set((state) => {
-      const nextColumns =
-        typeof updater === 'function' ? updater(state.columns) : updater;
+    set((state: any) => { // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+      const nextColumns = typeof updater === 'function' ? updater(state.columns) : updater;
       return { columns: nextColumns };
     }),
 
   addColumn: (header, containerWidth) => {
-    const columns = get().columns;
-    const usedKeys = columns.map((col) => col.key);
+    const columns = (get() as any).columns; // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+    const usedKeys = columns.map((col: Column) => col.key);
     const availableKey = ALLOWED_DYNAMIC_KEYS.find((key) => !usedKeys.includes(key));
     if (!availableKey) {
       alert("더 이상 컬럼을 추가할 수 없습니다.");
@@ -43,25 +46,23 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
 
     const newColPx = 110;
     const newColRatio = newColPx / containerWidth;
-
-    const totalRatio = columns.reduce((sum, col) => sum + col.widthRatio, 0);
+    const totalRatio = columns.reduce((sum: number, col: Column) => sum + col.widthRatio, 0);
     const freeRatio = 1 - totalRatio;
 
     if (freeRatio >= newColRatio) {
-      set((state) => ({
+      set((state: any) => ({
         columns: [
           ...state.columns,
           { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
         ],
       }));
-      get().setEditingKey(availableKey);
+      (get() as any).setEditingKey(availableKey);
       return;
     }
 
     const minRatio = newColPx / containerWidth;
-
-    const shrinkable = columns.filter((col) => col.widthRatio > minRatio);
-    const shrinkableCapacity = shrinkable.reduce((sum, col) => {
+    const shrinkable = columns.filter((col: Column) => col.widthRatio > minRatio);
+    const shrinkableCapacity = shrinkable.reduce((sum: number, col: Column) => {
       const possible = col.widthRatio - minRatio;
       return sum + (possible > 0 ? possible : 0);
     }, 0);
@@ -71,7 +72,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       return;
     }
 
-    const resizedShrinkables = shrinkable.map((col) => {
+    const resizedShrinkables = shrinkable.map((col: Column) => {
       const possible = col.widthRatio - minRatio;
       const shrinkAmount = (possible / shrinkableCapacity) * newColRatio;
       return {
@@ -80,7 +81,7 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       };
     });
 
-    const nonShrinkables = columns.filter((col) => col.widthRatio <= minRatio);
+    const nonShrinkables = columns.filter((col: Column) => col.widthRatio <= minRatio);
 
     const newColumns = [
       ...resizedShrinkables,
@@ -88,25 +89,31 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
       { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
     ];
 
+    useHistoryStore.getState().push({
+      type: "addColumn",
+      prev: columns,
+      next: newColumns,
+    });
+
     set({ columns: newColumns });
-    get().setEditingKey(availableKey);
+    (get() as any).setEditingKey(availableKey);
   },
 
   updateColumn: (key, newHeader) =>
-    set((state) => ({
-      columns: state.columns.map((col) =>
+    set((state: any) => ({
+      columns: state.columns.map((col: Column) =>
         col.key === key ? { ...col, header: newHeader } : col
       ),
     })),
 
   deleteColumn: (key) =>
-    set((state) => ({
-      columns: state.columns.filter((col) => col.key !== key || col.isFixed),
+    set((state: any) => ({
+      columns: state.columns.filter((col: Column) => col.key !== key || col.isFixed),
     })),
 
   updateWidth: (key, newWidth) =>
-    set((state) => ({
-      columns: state.columns.map((col) =>
+    set((state: any) => ({
+      columns: state.columns.map((col: Column) =>
         col.key === key
           ? {
               ...col,
@@ -118,9 +125,9 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
     })),
 
   reorderColumns: (fromKey, toKey) => {
-    const columns = [...get().columns];
-    const fromIndex = columns.findIndex((col) => col.key === fromKey);
-    const toIndex = columns.findIndex((col) => col.key === toKey);
+    const columns = [...(get() as any).columns]; // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+    const fromIndex = columns.findIndex((col: Column) => col.key === fromKey);
+    const toIndex = columns.findIndex((col: Column) => col.key === toKey);
 
     if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
 
@@ -130,12 +137,9 @@ export const useColumnStore = create<ColumnStore>((set, get) => ({
   },
 
   hideColumn: (key) =>
-    set((state) => ({
-      columns: state.columns.map((col) =>
+    set((state: any) => ({
+      columns: state.columns.map((col: Column) =>
         col.key === key ? { ...col, isHidden: !col.isHidden } : col
       ),
     })),
-
-  editingKey: null,
-  setEditingKey: (key: string | null) => set({ editingKey: key }),
-}));
+});

@@ -18,7 +18,8 @@ export type ChangeLog =
     }
   | {
       type: "addColumn";
-      column: Column;
+      prev: Column[];
+      next: Column[];
     }
   | {
       type: "deleteColumn";

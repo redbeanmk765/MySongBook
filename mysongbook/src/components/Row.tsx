@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { RowData } from "@/types/RowData";
 import GenerateTd from "./GenerateTd";
 import { useSheetStore } from "@/stores/sheetStore";
-import { useColumnStore } from '@/stores/columnStore';
 import clsx from 'clsx'; // tailwind 클래스를 조건부로 적용하기 위해 clsx를 사용합니다.
 
 interface RowProps {
@@ -18,10 +17,8 @@ export default function Row({
   isEditable,
   isLastRow,
 }: RowProps) {
-  const { editingCell, setEditingCell, updateRow, deleteRow } = useSheetStore();
+  const { editingCell, setEditingCell, updateRow, deleteRow, columns } = useSheetStore();
   const [editedData, setEditedData] = useState<RowData>(data);
-  const columns = useColumnStore((state) => state.columns);
-
   useEffect(() => {
     setEditedData(data);
   }, [data]);
