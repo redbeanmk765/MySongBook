@@ -23,7 +23,8 @@ export type ChangeLog =
     }
   | {
       type: "deleteColumn";
-      column: Column;
+      prev: Column[];
+      next: Column[];
     }
   | {
       type: "updateColumnHeader";

@@ -24,6 +24,7 @@ export default function PanelColumnItem({
  
 
   const updateColumn = useSheetStore((state) => state.updateColumn);
+  const deleteColumn = useSheetStore((state) => state.deleteColumn);
   const hideColumn = useSheetStore((state) => state.hideColumn);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -85,9 +86,8 @@ export default function PanelColumnItem({
               ) : (
               <Input
                 type="text"
-                value={col.header}
+                defaultValue={col.header}
                 ref={inputRef}
-                onChange={(e) => handleChange(col.key, e.target.value)}
                 onBlur={(e) => handleBlur(col.key, e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") inputRef.current?.blur();}}
@@ -98,10 +98,8 @@ export default function PanelColumnItem({
             }
           </div>
           <div className="flex">
-              {col.isFixed ? null :  <Trash2 className="text-gray-500 h-[18px] w-[18px] mr-2"/>}
-            <button
-              onClick={() => hideColumn(col.key)}
-            >
+              {col.isFixed ? null :  <Trash2 className="text-gray-500 h-[18px] w-[18px] mr-2" onClick={() => deleteColumn(col.key)}/>}
+            <button onClick={() => hideColumn(col.key)}>
                 {col.isHidden ? <EyeOff className="text-gray-500 h-[18px] w-[18px]"/> :
                   <Eye className="text-gray-500 h-[18px] w-[18px]"/>}        
             </button>

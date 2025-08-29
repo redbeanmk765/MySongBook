@@ -57,7 +57,7 @@ export const useSheetStore = create<SheetStore>((set, get, store) => {
       const { data, selectedTag, getTagList } = get();
       const newId = Math.max(0, ...data.map((d) => d.id)) + 1;
       const tag = selectedTag || getTagList()[0] || "";
-      return { id: newId, tag: tag, singer: "", name: "", memo: "", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" };
+      return { id: newId, tag: tag, singer: "", name: "", memo: "", link: "",col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" };
     }
   };
 });

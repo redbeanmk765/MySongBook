@@ -1,7 +1,9 @@
 // stores/slices/columnSlice.ts
+
 import { StateCreator } from 'zustand';
 import { Column } from '@/types/Column';
 import { useHistoryStore } from '@/stores/historyStore';
+import { produce } from 'immer'; 
 
 const ALLOWED_DYNAMIC_KEYS = ['col_1', 'col_2', 'col_3', 'col_4', 'col_5'];
 
@@ -22,7 +24,7 @@ export interface ColumnSlice {
 export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, get) => ({
   columns: [
     { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1, pixelWidth: 110 },
-    { key: 'singer', header: '가수', isFixed: true, widthRatio: 0.12, pixelWidth: 110 },
+    { key: 'singer', header: '가수', widthRatio: 0.12, pixelWidth: 110 },
     { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 110 },
     { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 110 },
   ],
@@ -30,13 +32,14 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
   setEditingKey: (key: string | null) => set({ editingKey: key }),
 
   setColumns: (updater) =>
-    set((state: any) => { // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+    set((state: any) => {
       const nextColumns = typeof updater === 'function' ? updater(state.columns) : updater;
       return { columns: nextColumns };
     }),
 
   addColumn: (header, containerWidth) => {
-    const columns = (get() as any).columns; // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+    const columns = (get() as any).columns;
+    const prevColumns = [...columns];
     const usedKeys = columns.map((col: Column) => col.key);
     const availableKey = ALLOWED_DYNAMIC_KEYS.find((key) => !usedKeys.includes(key));
     if (!availableKey) {
@@ -49,17 +52,23 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
     const totalRatio = columns.reduce((sum: number, col: Column) => sum + col.widthRatio, 0);
     const freeRatio = 1 - totalRatio;
 
+    // 첫 번째 조건: 남은 공간이 충분할 경우
     if (freeRatio >= newColRatio) {
-      set((state: any) => ({
-        columns: [
-          ...state.columns,
-          { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
-        ],
-      }));
+      const nextColumns = [
+        ...columns,
+        { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
+      ];
+      useHistoryStore.getState().push({
+        type: "addColumn",
+        prev: prevColumns,
+        next: nextColumns,
+      });
+      set({ columns: nextColumns });
       (get() as any).setEditingKey(availableKey);
       return;
     }
 
+    // 두 번째 조건: 기존 컬럼 너비를 줄여야 할 경우
     const minRatio = newColPx / containerWidth;
     const shrinkable = columns.filter((col: Column) => col.widthRatio > minRatio);
     const shrinkableCapacity = shrinkable.reduce((sum: number, col: Column) => {
@@ -72,44 +81,70 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
       return;
     }
 
-    const resizedShrinkables = shrinkable.map((col: Column) => {
-      const possible = col.widthRatio - minRatio;
-      const shrinkAmount = (possible / shrinkableCapacity) * newColRatio;
-      return {
-        ...col,
-        widthRatio: col.widthRatio - shrinkAmount,
-      };
-    });
-
-    const nonShrinkables = columns.filter((col: Column) => col.widthRatio <= minRatio);
-
-    const newColumns = [
-      ...resizedShrinkables,
-      ...nonShrinkables,
-      { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
-    ];
+    const nextColumns = produce<Column[]>(columns, (draft: Column[]) => {
+      draft.forEach(col => {
+        const isShrinkable = col.widthRatio > minRatio;
+        if (isShrinkable) {
+          const possible = col.widthRatio - minRatio;
+          const shrinkAmount = (possible / shrinkableCapacity) * newColRatio;
+          col.widthRatio -= shrinkAmount;
+        }
+      });
+      draft.push({ key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx });
+    }); 
 
     useHistoryStore.getState().push({
       type: "addColumn",
-      prev: columns,
-      next: newColumns,
+      prev: prevColumns,
+      next: nextColumns,
     });
 
-    set({ columns: newColumns });
+    set({ columns: nextColumns });
     (get() as any).setEditingKey(availableKey);
   },
 
-  updateColumn: (key, newHeader) =>
+  deleteColumn: (key) => {
+    const prevColumns = [...(get() as any).columns]; // 현재 상태 백업
+    const target = prevColumns.find(col => col.key === key);
+
+    // 못 찾았거나 고정 컬럼이면 중단
+    if (!target || target.isFixed) {
+      return;
+    }
+
+    // immer로 next 상태 만들기
+    const nextColumns = produce<Column[]>(prevColumns, (draft) => {
+      const index = draft.findIndex(col => col.key === key);
+      if (index !== -1) {
+        draft.splice(index, 1); // 배열에서 해당 컬럼 제거
+      }
+    });
+
+    // historyStore에 기록 (undo/redo 용)
+    useHistoryStore.getState().push({
+      type: "deleteColumn",
+      prev: prevColumns,
+      next: nextColumns,
+    });
+
+    // 상태 반영
+    set({ columns: nextColumns });
+  },
+    
+  updateColumn: (key, newHeader) =>{
+    useHistoryStore.getState().push({ 
+      type: "updateColumnHeader", 
+      key, 
+      prev: (get() as any).columns.find((
+        (col: Column) => col.key === key
+      )).header,
+      next: newHeader
+    });
     set((state: any) => ({
       columns: state.columns.map((col: Column) =>
         col.key === key ? { ...col, header: newHeader } : col
       ),
-    })),
-
-  deleteColumn: (key) =>
-    set((state: any) => ({
-      columns: state.columns.filter((col: Column) => col.key !== key || col.isFixed),
-    })),
+    }))},
 
   updateWidth: (key, newWidth) =>
     set((state: any) => ({
@@ -125,7 +160,7 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
     })),
 
   reorderColumns: (fromKey, toKey) => {
-    const columns = [...(get() as any).columns]; // T에 전체 스토어 타입이 들어가므로 any로 캐스팅
+    const columns = [...(get() as any).columns];
     const fromIndex = columns.findIndex((col: Column) => col.key === fromKey);
     const toIndex = columns.findIndex((col: Column) => col.key === toKey);
 

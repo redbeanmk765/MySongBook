@@ -28,6 +28,7 @@ export const useHistoryStore = create<HistoryStore>((set, get) => {
     },
 
     push: (log) => {
+      console.log("Pushing log:", log);
       set((state) => ({
         undoStack: [...state.undoStack, log],
         redoStack: [],
@@ -60,6 +61,25 @@ export const useHistoryStore = create<HistoryStore>((set, get) => {
             data: [...state.data, log.row],
           }));
           break;
+        case "addColumn":
+          _setSheetStore((state: any) => ({
+            columns: log.prev,
+          }));
+          break
+        case "deleteColumn":
+          _setSheetStore((state: any) => ({
+            columns: log.prev,
+          }));
+          break
+        case "updateColumnHeader":
+          _setSheetStore((state: any) => ({
+            columns: produce(state.columns, (draft: Column[]) => {
+              const index = draft.findIndex((col: Column) => col.key === log.key);
+              if (index !== -1) draft[index].header = log.prev;
+            }),
+        }));
+        break;
+        
         default:
           console.warn("Unhandled undo log type:", log.type);
       }
@@ -96,6 +116,23 @@ export const useHistoryStore = create<HistoryStore>((set, get) => {
             data: state.data.filter((row: RowData) => row.id !== log.row.id),
           }));
           break;
+        case "addColumn":
+          _setSheetStore((state: any) => ({
+            columns: log.next,
+          }));
+          break
+        case "deleteColumn":
+          _setSheetStore((state: any) => ({
+            columns: log.next,
+          }));
+          break
+        case "updateColumnHeader":
+          _setSheetStore((state: any) => ({
+            columns: produce(state.columns, (draft: Column[]) => {
+              const index = draft.findIndex((col: Column) => col.key === log.key);
+              if (index !== -1) draft[index].header = log.next;
+            }),
+        }));  
         default:
           console.warn("Unhandled redo log type:", log.type);
       }
