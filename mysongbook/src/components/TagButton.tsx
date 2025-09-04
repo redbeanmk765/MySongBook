@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useTagColorStore } from "@/stores/tagColorStore";
+import { useSheetStore } from "@/stores/sheetStore";
+import { TagColor } from "@/stores/slices/tagSlice";
 
 interface TagButtonProps {
   currentTag: string;
@@ -9,8 +10,8 @@ interface TagButtonProps {
   onBlur: () => void;
 }
 
-function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
-  return tagColors[tag] || tagColors['default'];
+function getTagColor(tag: string, tagColors: TagColor[] ) {
+  return tagColors.find(tc => tc.tag === tag);
 }
 
 export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: TagButtonProps) {
@@ -18,7 +19,7 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const tagColors = useTagColorStore(state => state.tagColors);
+  const tagColors = useSheetStore(state => state.tagColors);
   const tagColor = getTagColor(currentTag, tagColors);
 
   useEffect(() => {
@@ -68,8 +69,8 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
         //className="block w-full min-w-0 max-w-25 overflow-hidden whitespace-nowrap text-ellipsis text-left pl-4 h-[20px] hover:bg-gray-100 focus:outline-none"
         className="inline-block ml-4 px-3 py-[3px] rounded-full text-xs font-medium "
         style={{
-            backgroundColor: tagColor.backgroundColor,
-            color: tagColor.textColor,
+            backgroundColor: tagColor?.backgroundColor,
+            color: tagColor?.textColor,
           }}
         onClick={() => {
             setIsOpen(!isOpen);
@@ -88,15 +89,15 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
             left: `${dropdownPosition.left}px`,
           }}
         >
-          {useTagColorStore.getState().getTagNames().map((tag) => {
+          {useSheetStore.getState().getTagNames().map((tag) => {
             const color = getTagColor(tag, tagColors);
             return (
               <div key={tag} className="w-full py-2 cursor-pointer hover:bg-cyan-50/75" onClick={() => handleTagSelect(tag)}>
                 <div
                 className="inline-block ml-3 px-3 py-[3px] rounded-full text-xs font-medium"
                 style={{
-                    backgroundColor: color.backgroundColor,
-                    color: color.textColor,
+                    backgroundColor: color?.backgroundColor,
+                    color: color?.textColor,
                   }}   
                 >
                   {tag}

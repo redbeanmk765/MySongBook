@@ -1,8 +1,8 @@
 // components/TagColorSettingsModal.tsx
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { useTagColorStore } from '@/stores/tagColorStore';
 import { useSheetStore } from "@/stores/sheetStore";
+import { TagColor } from "@/stores/slices/tagSlice";
 
 interface TagColorSettingsModalProps {
   isOpen: boolean;
@@ -11,65 +11,52 @@ interface TagColorSettingsModalProps {
           // 입력 필드 내용
 
 export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSettingsModalProps) {
-  const { tagColors, setTagColor, setTagColors } = useTagColorStore();
+  const { tagColors, setTagColors } = useSheetStore();
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState("");
+  const { changeTagColor, addTag } = useSheetStore();
   const renameTagInData = useSheetStore((state) => state.renameTag); // RowData의 tag 변경 함수
-  const renameTag = useTagColorStore((state) => state.renameTag); // 색상 map 내부 이름 변경 함수
+  const renameTag = useSheetStore((state) => state.renameTag); // 색상 map 내부 이름 변경 함수
 
 
   if (!isOpen) return null;
 
   const handleColorChange = (tag: string, field: "backgroundColor" | "textColor", value: string) => {
-    const updatedColors = {
-      ...tagColors,
-      [tag]: {
-        ...tagColors[tag],
-        [field]: value,
-      },
-    };
-    setTagColors(updatedColors);
+    changeTagColor(tag, { [field]: value });
   };
 
-  const handleTagRename = (oldTag: string, newTag: string) => {
-    const trimmed = newTag.trim();
+   const handleRename = (oldTag: string) => {
+    const trimmed = newTagName.trim();
     if (trimmed === "" || trimmed === oldTag) {
       setEditingTag(null);
       return;
     }
-  
-    if (tagColors[trimmed]) {
+
+    const isTagExist = tagColors.findIndex(item => item.tag === trimmed) !== -1;
+    if (isTagExist) {
       alert("이미 존재하는 태그입니다.");
       setEditingTag(null);
       return;
     }
-  
-    // 1. 태그 색상 스토어에서 이름 변경
-    const updatedColors = { ...tagColors };
-    updatedColors[trimmed] = {
-      ...updatedColors[oldTag],
-      tag: trimmed,
-    };
-    delete updatedColors[oldTag];
-    setTagColors(updatedColors);
-  
-    // 2. 데이터 스토어에서도 이름 변경
-    renameTagInData(oldTag, trimmed);
-  
+    renameTag(oldTag, trimmed);
     setEditingTag(null);
   };
 
-  const handleRename = (oldTag: string) => {
-    if (!newTagName || newTagName === oldTag) {
-      setEditingTag(null);
-      return;
+  const handleAddTag = () => {
+    const defaultTag = "새 태그";
+    const newTag: TagColor = { 
+      tag: defaultTag, 
+      backgroundColor: "#95A5A6", 
+      textColor: "#FFFFFF" 
+    };
+
+    let suffix = 2;
+    while (tagColors.some(item => item.tag === newTag.tag)) {
+        newTag.tag = `${defaultTag} ${suffix}`;
+        suffix++;
     }
-  
-    // 데이터와 색상 모두 변경
-    renameTagInData(oldTag, newTagName);
-    renameTag(oldTag, newTagName);
-    
-    setEditingTag(null);
+
+    addTag(newTag);
   };
 
 
@@ -82,12 +69,12 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
         </div>
 
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {Object.entries(tagColors).map(([tag, color]) => {
-            if (tag === "default") return null;
-            const isEditing = editingTag === tag;
+          {tagColors.map((tagColor) => {
+            if (tagColor.tag === "default") return null;
+            const isEditing = editingTag === tagColor.tag;
 
             return (
-                <div key={tag} className="flex items-center w-full mb-3">
+                <div key={tagColor.tag} className="flex items-center w-full mb-3">
                 {/* 왼쪽 영역 */}
                 <div className="flex items-center gap-3 ml-3">
 
@@ -96,9 +83,9 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                           type="text"
                           value={newTagName}
                           onChange={(e) => setNewTagName(e.target.value)} 
-                          onBlur={() => handleRename(tag)}
+                          onBlur={() => handleRename(tagColor.tag)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") handleRename(tag);
+                            if (e.key === "Enter") handleRename(tagColor.tag);
                           }}
                           className="w-20 text-sm border rounded px-1"
                           autoFocus
@@ -107,11 +94,11 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                         <span
                           className="flex w-20 text-sm font-medium cursor-pointer hover:underline"
                           onClick={() => {
-                            setEditingTag(tag);
-                            setNewTagName(tag);
+                            setEditingTag(tagColor.tag);
+                            setNewTagName(tagColor.tag);
                           }}
                         >
-                          {tag}
+                          {tagColor.tag}
                         </span>
                       )}
 
@@ -119,8 +106,8 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                     <label className="text-xs">배경:</label>
                     <input
                       type="color"
-                      value={color.backgroundColor}
-                      onChange={(e) => handleColorChange(tag, "backgroundColor", e.target.value)}
+                      value={tagColor.backgroundColor}
+                      onChange={(e) => handleColorChange(tagColor.tag, "backgroundColor", e.target.value)}
                       className="w-8 h-8 border rounded cursor-pointer"
                     />
                   </div>
@@ -129,8 +116,8 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                     <label className="text-xs">텍스트:</label>
                     <input
                       type="color"
-                      value={color.textColor}
-                      onChange={(e) => handleColorChange(tag, "textColor", e.target.value)}
+                      value={tagColor.textColor}
+                      onChange={(e) => handleColorChange(tagColor.tag, "textColor", e.target.value)}
                       className="w-8 h-8 border rounded cursor-pointer"
                     />
                   </div>
@@ -141,11 +128,11 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                   <div
                     className="inline-block px-3 py-[3px] rounded-full text-xs font-medium"
                     style={{
-                      backgroundColor: color.backgroundColor,
-                      color: color.textColor,
+                      backgroundColor: tagColor.backgroundColor,
+                      color: tagColor.textColor,
                     }}
                   >
-                    {tag}
+                    {tagColor.tag}
                   </div>
                 </div>
               </div>
@@ -155,7 +142,7 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
 
         <div className="mt-4 pt-3 border-t">
           <button
-            onClick={() => setTagColor("새 태그", { backgroundColor: "#95A5A6", textColor: "#FFFFFF" })}
+            onClick={() => handleAddTag()}
             className="w-full px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
           >                     
             추가

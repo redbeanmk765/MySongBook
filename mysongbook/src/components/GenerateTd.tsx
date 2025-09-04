@@ -1,8 +1,8 @@
   import React, { useRef, useEffect, useCallback } from "react";
   import { RowData } from "@/types/RowData";
-  import { useTagColorStore } from '@/stores/tagColorStore';
   import TagButton from "./TagButton";
   import { Input } from "@/components/ui/input";
+  import { useSheetStore } from "@/stores/sheetStore";
 
   interface GenerateTdProps {
     data: RowData;
@@ -17,10 +17,6 @@
     pixelWidth: number; 
   }
 
-  function getTagColor(tag: string, tagColors: Record<string, { backgroundColor: string; textColor: string }>) {
-    return tagColors[tag] || tagColors['default'];
-  }
-
   export default function GenerateTd({
     data,
     fieldName,
@@ -32,14 +28,15 @@
     tagList = [],
     pixelWidth,
   }: GenerateTdProps) {
-    const tagColors = useTagColorStore(state => state.tagColors);
+    const getTagColor = useSheetStore(state => state.getTagColor);
     const isEditingTd = editingCell?.rowId === data.id && editingCell.field === fieldName;
     const nameString = fieldName as string;
     const inputRef = useRef<HTMLInputElement>(null);
     const spanRef = useRef<HTMLSpanElement>(null);
 
     const isTagField = fieldName === 'tag';
-    const tagColor = isTagField ? getTagColor(editedData[fieldName] as string, tagColors) : null;
+    const tagColor = isTagField ? getTagColor(editedData[fieldName] as string) : null;
+
 
     const width = pixelWidth;
 

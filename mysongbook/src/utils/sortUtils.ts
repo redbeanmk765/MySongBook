@@ -1,4 +1,5 @@
 import { RowData } from '@/types/RowData';
+import { useSheetStore } from '@/stores/sheetStore';
 
 export const sortData = (
   data: RowData[],
@@ -6,10 +7,14 @@ export const sortData = (
   sortDirection: "asc" | "desc"
 ): RowData[] => {
   if (!sortKey) return data;
+
+  const tags = useSheetStore.getState().tagColors;
   
   return [...data].sort((a, b) => {
-    const aValue = a[sortKey];
-    const bValue = b[sortKey];
+    let primaryCompare = 0;
+    
+    const aValue = (a[sortKey] ?? "") as string;
+    const bValue = (b[sortKey] ?? "") as string;
     const aIsEmpty = aValue === "";
     const bIsEmpty = bValue === "";
 
@@ -18,8 +23,16 @@ export const sortData = (
     if (!aIsEmpty && bIsEmpty) return -1;
 
     // 1순위: sortKey(기본값은 "tag")
-    let primaryCompare = 0;
-    if (typeof aValue === "string" && typeof bValue === "string") {
+
+    if (sortKey === "tag"){
+      const tagsArray = tags.map(tag => tag.tag);
+      const aTagIndex = tagsArray.indexOf(aValue);
+      const bTagIndex = tagsArray.indexOf(bValue);
+
+      primaryCompare = aTagIndex - bTagIndex;
+    }
+    
+    else if(typeof aValue === "string" && typeof bValue === "string"){
       primaryCompare = aValue.localeCompare(bValue, "ko", { 
         numeric: true, 
         sensitivity: "base" 

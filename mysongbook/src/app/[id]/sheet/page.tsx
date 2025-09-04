@@ -18,22 +18,22 @@ export default function sheet() {
   useEffect(() => {
     if (data.length === 0) {
       const initialData: RowData[] = [
-        { id: 1, tag: "K", singer: "BTS", name: "Dynamiteㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", memo: "TEST", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 2, tag: "J", singer: "BTS2", name: "好きだから", memo: "TEST2", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 3, tag: "K", singer: "tt", name: "123123", memo: "yesy", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 4, tag: "K", singer: "가나다", name: "가나다", memo: "가나다", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 5, tag: "K", singer: "BTS", name: "Dynamite", memo: "TEST", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 6, tag: "VOCALOID", singer: "BTS2", name: "好きだから", memo: "TEST2", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 7, tag: "K", singer: "tt", name: "123123", memo: "yesy", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 8, tag: "K", singer: "가나다", name: "가나다", memo: "가나다", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 9, tag: "K", singer: "BTS", name: "Dynamite", memo: "TEST", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 10, tag: "K", singer: "BTS2", name: "好きだから", memo: "TEST2", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 11, tag: "K", singer: "tt", name: "123123", memo: "yesy", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 12, tag: "K", singer: "가나다", name: "가나다", memo: "가나다", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 13, tag: "K", singer: "BTS", name: "Dynamite", memo: "TEST", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 14, tag: "K", singer: "BTS2", name: "好きだから", memo: "TEST2", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 15, tag: "K", singer: "tt", name: "123123", memo: "yesy", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
-        { id: 16, tag: "K", singer: "가나다", name: "가나다", memo: "가나다", col_1: "", col_2: "", col_3: "", col_4: "", col_5: "" },
+        { "id": 1, "tag": "K", "singer": "BTS", "name": "Dynamiteㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", "memo": "TEST" },
+        { "id": 2, "tag": "J", "singer": "BTS2", "name": "好きだから", "memo": "yesy"  },
+        { "id": 3, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
+        { "id": 4, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" },
+        { "id": 5, "tag": "K", "singer": "BTS", "name": "Dynamite", "memo": "TEST" },
+        { "id": 6, "tag": "VOCALOID", "singer": "BTS2", "name": "好きだから", "memo": "TEST2" },
+        { "id": 7, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
+        { "id": 8, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" },
+        { "id": 9, "tag": "K", "singer": "BTS", "name": "Dynamite", "memo": "TEST" },
+        { "id": 10, "tag": "K", "singer": "BTS2", "name": "好きだから", "memo": "TEST2" },
+        { "id": 11, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
+        { "id": 12, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" },
+        { "id": 13, "tag": "K", "singer": "BTS", "name": "Dynamite", "memo": "TEST" },
+        { "id": 14, "tag": "K", "singer": "BTS2", "name": "好きだから", "memo": "TEST2" },
+        { "id": 15, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
+        { "id": 16, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" }
       ];
 
       setData(initialData);

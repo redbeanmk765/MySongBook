@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { BarsArrowDownIcon } from "@heroicons/react/24/solid";
 import TagColorSettingsModal from "@/components/TagColorSettingsModal";
 import { createPortal } from "react-dom";
-import { useTagColorStore } from '@/stores/tagColorStore';
 import { useSheetStore } from "@/stores/sheetStore";
 import { useUIStore } from "@/stores/uiStore";
 
@@ -14,14 +13,14 @@ interface TagFilterButtonProps {
 
 export default function TagFilterButton({isOverlay=false }: TagFilterButtonProps) {
   const { isTagDropdownOpen: isOpen, setTagDropdownOpen: setIsOpen } = useUIStore();
-  const { selectedTag, setSelectedTag } = useSheetStore();
+  const { selectedTag, setSelectedTag, setSortKey, setSortDirection  } = useSheetStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const buttonRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
-  const tagColors = useTagColorStore(state => state.tagColors);
+  const tagColors = useSheetStore(state => state.tagColors);
 
   const openDropdown = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -48,6 +47,10 @@ export default function TagFilterButton({isOverlay=false }: TagFilterButtonProps
   }, [isOpen, setIsOpen]);
 
   const handleSelectTag = (tag: string | null) => {
+    if( tag === null) {
+      setSortKey('tag');
+      setSortDirection('asc');
+    }
     setSelectedTag(tag);
     setIsOpen(false);
   };
@@ -81,7 +84,7 @@ export default function TagFilterButton({isOverlay=false }: TagFilterButtonProps
               전체
             </div>
 
-            {useTagColorStore.getState().getTagNames().map(tag => (
+            {useSheetStore.getState().getTagNames().map(tag => (
               <div
                 key={tag}
                 className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedTag === tag ? "bg-blue-100" : ""}`}

@@ -27,6 +27,7 @@ export default function HeaderItem({
 }: Props) {
   const columns = useSheetStore((state) => state.columns);
   const setColumns = useSheetStore((state) => state.setColumns);
+  const updateColumn = useSheetStore((state) => state.updateColumn);
   const editingKey = useSheetStore((state) => state.editingKey);
   const setEditingKey = useSheetStore((state) => state.setEditingKey);
 
@@ -157,10 +158,11 @@ export default function HeaderItem({
   };
 
   const handleBlur = () => {
-    const next = [...columns];
-    next[index] = { ...next[index], header: tempHeader.trim() || '새 속성' };
-    setColumns(next);
-    setEditingKey(null);
+    const newHeader = tempHeader.trim();
+    if (col.header !== newHeader) { // 변경이 있을 때만 업데이트
+        updateColumn(col.key, newHeader || '새 속성'); // 👈 updateColumn 사용
+    }
+    setEditingKey(null)
   };
 
   return (
