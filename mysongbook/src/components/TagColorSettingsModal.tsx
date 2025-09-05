@@ -3,21 +3,32 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { useSheetStore } from "@/stores/sheetStore";
 import { TagColor } from "@/stores/slices/tagSlice";
+import { closestCenter, DndContext, DragEndEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import TagColorSettingsModalItem from "./TagColorSettingsModalItem";
 
 interface TagColorSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-          // 입력 필드 내용
 
 export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSettingsModalProps) {
-  const { tagColors, setTagColors } = useSheetStore();
+  const { tagColors, setTagColors, reorderTags } = useSheetStore();
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState("");
   const { changeTagColor, addTag } = useSheetStore();
-  const renameTagInData = useSheetStore((state) => state.renameTag); // RowData의 tag 변경 함수
+  const [activeTag, setActiveTag] = useState<TagColor | null>(null); // 드래그 중인 태그
   const renameTag = useSheetStore((state) => state.renameTag); // 색상 map 내부 이름 변경 함수
 
+  const sensors = useSensors(
+      useSensor(MouseSensor, {
+        activationConstraint: { distance: 5 },
+      }),
+      useSensor(TouchSensor, {
+        activationConstraint: { delay: 200, tolerance: 5 },
+      })
+    );
 
   if (!isOpen) return null;
 
@@ -60,6 +71,23 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
   };
 
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const id = event.active.id as string;
+    const tag = tagColors.find((tag) => tag.tag === id);
+    setActiveTag(tag ?? null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+  
+    setActiveTag(null);
+
+    if (over && active.id !== over.id) {
+        reorderTags(active.id as string, over.id as string);
+      }
+  };
+
+
   return ReactDOM.createPortal(
     <div  onMouseDown={(e) => {e.stopPropagation();}} 
       className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
@@ -68,77 +96,29 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
           <h3 className="text-lg font-semibold">태그 설정</h3>
         </div>
 
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {tagColors.map((tagColor) => {
-            if (tagColor.tag === "default") return null;
-            const isEditing = editingTag === tagColor.tag;
-
-            return (
-                <div key={tagColor.tag} className="flex items-center w-full mb-3">
-                {/* 왼쪽 영역 */}
-                <div className="flex items-center gap-3 ml-3">
-
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={newTagName}
-                          onChange={(e) => setNewTagName(e.target.value)} 
-                          onBlur={() => handleRename(tagColor.tag)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") handleRename(tagColor.tag);
-                          }}
-                          className="w-20 text-sm border rounded px-1"
-                          autoFocus
-                        />
-                      ) : (
-                        <span
-                          className="flex w-20 text-sm font-medium cursor-pointer hover:underline"
-                          onClick={() => {
-                            setEditingTag(tagColor.tag);
-                            setNewTagName(tagColor.tag);
-                          }}
-                        >
-                          {tagColor.tag}
-                        </span>
-                      )}
-
-                  <div className="flex w-20 items-center space-x-2 mx-3">
-                    <label className="text-xs">배경:</label>
-                    <input
-                      type="color"
-                      value={tagColor.backgroundColor}
-                      onChange={(e) => handleColorChange(tagColor.tag, "backgroundColor", e.target.value)}
-                      className="w-8 h-8 border rounded cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="flex w-20 items-center space-x-2 mx-3">
-                    <label className="text-xs">텍스트:</label>
-                    <input
-                      type="color"
-                      value={tagColor.textColor}
-                      onChange={(e) => handleColorChange(tagColor.tag, "textColor", e.target.value)}
-                      className="w-8 h-8 border rounded cursor-pointer"
-                    />
-                  </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+          autoScroll={false}
+        >
+        
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            <SortableContext
+              items={tagColors.map((tag) => tag.tag)}
+              strategy={verticalListSortingStrategy}
+            >
+                <div className="mt-2 relative">
+                  {tagColors.map((tag, index) => (
+                    <TagColorSettingsModalItem id={tag.tag} tagColor={tag}/>
+                  ))}
                 </div>
+            </SortableContext>
+          </div>
 
-                {/* 오른쪽 영역: ml-auto로 오른쪽 정렬 */}
-                <div className="ml-auto mr-3 flex items-center justify-center w-20">
-                  <div
-                    className="inline-block px-3 py-[3px] rounded-full text-xs font-medium"
-                    style={{
-                      backgroundColor: tagColor.backgroundColor,
-                      color: tagColor.textColor,
-                    }}
-                  >
-                    {tagColor.tag}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        </DndContext>
 
         <div className="mt-4 pt-3 border-t">
           <button

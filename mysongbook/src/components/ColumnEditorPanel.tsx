@@ -7,7 +7,7 @@ import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, M
 import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect, useRef, useState } from "react";
-import PanelColumnItem from "./panelColumnItem";  
+import ColumnEditorPanelItem from "./ColumnEditorPanelItem";  
 
 
 interface ColumnEditorPanelProps {
@@ -23,8 +23,6 @@ export default function ColumnEditorPanel({
 }: ColumnEditorPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const columns = useSheetStore((state) => state.columns);
-  const setColumns = useSheetStore((state) => state.setColumns);
-  const hideColumn = useSheetStore((state) => state.hideColumn);
   const reorderColumns = useSheetStore((state) => state.reorderColumns);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
@@ -53,39 +51,23 @@ export default function ColumnEditorPanel({
     })
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const id = event.active.id as string;
-    const col = columns.find((col) => col.key === id);
-    setActiveColumn(col ?? null);
+  // const handleDragStart = (event: DragStartEvent) => {
+  //   const id = event.active.id as string;
+  //   const col = columns.find((col) => col.key === id);
+  //   setActiveColumn(col ?? null);
 
-    if (panelRef.current) {
-      const rect = panelRef.current.getBoundingClientRect();
-      setOverlayPos({
-        x: (event.activatorEvent as MouseEvent).clientX - rect.left,
-        y: (event.activatorEvent as MouseEvent).clientY - rect.top,
-      });
-    }
-  };
+  // };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
  
     setActiveColumn(null);
-    setOverlayPos(null);
 
     if (over && active.id !== over.id) {
         reorderColumns(active.id as string, over.id as string);
       }
   };
 
-  const handleDragMove = (event: any) => {
-    if (!panelRef.current) return;
-    const rect = panelRef.current.getBoundingClientRect();
-    setOverlayPos({
-      x: (event.activatorEvent as MouseEvent).clientX - rect.left,
-      y: (event.activatorEvent as MouseEvent).clientY - rect.top,
-    });
-  };
 
 
   return (  
@@ -103,8 +85,7 @@ export default function ColumnEditorPanel({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragMove={handleDragMove}
+        // onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         modifiers={[restrictToParentElement, restrictToVerticalAxis]}
         autoScroll={false}
@@ -140,7 +121,7 @@ export default function ColumnEditorPanel({
         >
           <div className="mt-2 relative">
             {columns.map((column, index) => (
-              <PanelColumnItem id={column.key} col={column}/>
+              <ColumnEditorPanelItem id={column.key} col={column}/>
             ))}
           </div>
 

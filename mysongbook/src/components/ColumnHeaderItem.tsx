@@ -17,7 +17,7 @@ interface Props {
   isOverlay?: boolean;
 }
 
-export default function HeaderItem({
+export default function ColumnHeaderItem({
   id,
   index,
   containerWidth,

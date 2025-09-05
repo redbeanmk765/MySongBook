@@ -9,17 +9,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { Eye, EyeOff, GripVertical, Trash2} from 'lucide-react';
 import { Input } from "./ui/input";
 
-interface PanelColumnItemProps {
+interface ColumnEditorPanelItemProps {
   id: string;   
   col: Column;
   isOverlay?: boolean;
 }
 
-export default function PanelColumnItem({
+export default function ColumnEditorPanelItem({
   id,
   col,
   isOverlay
-}: PanelColumnItemProps) {
+}: ColumnEditorPanelItemProps) {
   const sortable= isOverlay ? null : useSortable({ id });
  
 

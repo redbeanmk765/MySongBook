@@ -23,6 +23,7 @@ function useContainerMeasurements() {
   React.useEffect(() => {
     if (!parentContainerRef.current) return;
     const parentElement = parentContainerRef.current;
+    
 
     const measure = () => {
       const rect = parentElement.getBoundingClientRect();
@@ -79,9 +80,8 @@ export function SheetTable({ isEditable }: SheetTableProps) {
     selectedTag,
     sortKey,
     sortDirection,
-    undoStack,
-    redoStack,
     max,
+    tagColors,
     addRow,
     undo,
     redo,
@@ -105,7 +105,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
 
   const sortedData = useMemo(
     () => sortData(data, sortKey, sortDirection),
-    [data, sortKey, sortDirection]
+    [data, sortKey, sortDirection, tagColors]
   );
 
   const filteredData = useMemo(() => {

@@ -30,6 +30,7 @@ export interface TagSlice {
   addTag: (newTag: TagColor) => void;
   removeTag: (tag: string) => void;
   getTagColor: (tag: string) => TagColor;
+  reorderTags: (activeTag: string, overTag: string) => void;
 }
 
 export const createTagSlice: StateCreator<any, [], [], TagSlice> = (set, get) => ({
@@ -81,5 +82,17 @@ export const createTagSlice: StateCreator<any, [], [], TagSlice> = (set, get) =>
   getTagColor: (tag: string)=> {
     const { tagColors } = get();
     return tagColors.find((item: TagColor) => item.tag === tag) || tagColors.find((item: TagColor) => item.tag === 'default')!;
+  },
+
+  reorderTags: (fromTag, toTag)=> {
+    const tags = [...(get() as any).tagColors];
+    const fromIndex = tags.findIndex((tag: TagColor) => tag.tag === fromTag);
+    const toIndex = tags.findIndex((tag: TagColor) => tag.tag === toTag);
+
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+
+    const [moved] = tags.splice(fromIndex, 1);
+    tags.splice(toIndex, 0, moved);
+    set({ tagColors: tags });
   }
 }); 

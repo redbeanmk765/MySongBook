@@ -8,7 +8,7 @@ import React, {
   useImperativeHandle,
 } from 'react';
 import { useSheetStore } from '@/stores/sheetStore';
-import HeaderItem from './HeaderItem';
+import ColumnHeaderItem from './ColumnHeaderItem';
 import {
   DndContext,
   closestCenter,
@@ -113,7 +113,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
             >
               {columns.map((col, index) => (
                 col.isHidden ? null : (
-                <HeaderItem
+                <ColumnHeaderItem
                   key={col.key}
                   id={col.key}
                   index={index}
@@ -154,7 +154,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
 
           <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
             {activeColumn && (
-              <HeaderItem
+              <ColumnHeaderItem
                 id={activeColumn.key}
                 index={-1}
                 containerWidth={containerWidth - 56}
