@@ -9,6 +9,7 @@ interface RowProps {
   tagList: string[];
   isEditable: boolean;
   isLastRow: boolean; // 마지막 행인지 여부를 나타내는 prop
+  isFirstRow: boolean; // 첫 번째 행인지 여부를 나타내는 prop
 }
 
 export default function Row({
@@ -16,6 +17,7 @@ export default function Row({
   tagList = [],
   isEditable,
   isLastRow,
+  isFirstRow,
 }: RowProps) {
   const { editingCell, setEditingCell, updateRow, deleteRow, columns } = useSheetStore();
   const [editedData, setEditedData] = useState<RowData>(data);
@@ -24,13 +26,15 @@ export default function Row({
   }, [data]);
 
   const totalContentWidth = useMemo(() => {
-    return columns.reduce((acc, col) => acc + Math.max(col.pixelWidth, 110), 0);
+    return columns.reduce((acc, col) => acc + Math.max(col.pixelWidth || 110, 110), 0);
   }, [columns]);
 
   const rowClassName = clsx(
-    "flex border-t border-gray-200 bg-[rgb(255,255,255)] text-sm",
+    "flex bg-[rgb(255,255,255)] text-sm",
     {
+      "border-t border-gray-200": !isFirstRow, 
       "border-b border-gray-200": isLastRow, // 마지막 행일 때만 border-b 추가
+      
     }
   );
 
@@ -52,7 +56,7 @@ export default function Row({
           handleUpdate={updateRow}
           tagList={tagList}
           isEditable={isEditable}
-          pixelWidth={col.pixelWidth}
+          pixelWidth={col.pixelWidth || 110}
         />
       )))}
     </div>

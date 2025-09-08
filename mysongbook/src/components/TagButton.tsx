@@ -16,7 +16,7 @@ function getTagColor(tag: string, tagColors: TagColor[] ) {
 
 export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: TagButtonProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: -1000, left: -1000 });
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tagColors = useSheetStore(state => state.tagColors);

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { useSheetStore } from "@/stores/sheetStore";
 import { TagColor } from "@/stores/slices/tagSlice";
-import { closestCenter, DndContext, DragEndEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import TagColorSettingsModalItem from "./TagColorSettingsModalItem";
@@ -117,6 +117,10 @@ export default function TagColorSettingsModal({ isOpen, onClose }: TagColorSetti
                 </div>
             </SortableContext>
           </div>
+          
+          <DragOverlay style={{ opacity: 0.6, pointerEvents: 'none' }}>
+            {activeTag ? <TagColorSettingsModalItem id={activeTag.tag} tagColor={activeTag} isOverlay /> : null}
+          </DragOverlay>
 
         </DndContext>
 

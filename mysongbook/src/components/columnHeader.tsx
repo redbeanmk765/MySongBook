@@ -117,7 +117,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
                   key={col.key}
                   id={col.key}
                   index={index}
-                  containerWidth={containerWidth - 56}
+                  containerWidth={containerWidth}
                   scrollLeft={scrollLeft} 
                 />)
               ))}
@@ -127,6 +127,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
                     transform: `translateX(${-scrollLeft}px)`,
                     display: 'flex'
                   }}
+
               >
 
                 <button

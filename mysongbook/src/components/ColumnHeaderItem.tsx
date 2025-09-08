@@ -7,6 +7,8 @@ import { Column } from '@/types/Column';
 import { RowData } from '@/types/RowData';
 import { useSheetStore } from '@/stores/sheetStore';
 import TagFilterButton from './TagFilterButton';
+import { ChevronsDown, ChevronsUp } from 'lucide-react';
+
 
 interface Props {
   id: string;
@@ -65,6 +67,10 @@ export default function ColumnHeaderItem({
   useEffect(() => {
     if (!isOverlay && divRef.current) {
       const actualWidth = divRef.current.offsetWidth;
+      
+      // ✅ LOG: DOM 픽셀 값과 Zustand 상태 값을 비교
+      console.log(`[${col.header}] DOM Pixel: ${actualWidth.toFixed(2)}px, Zustand Pixel: ${(col.pixelWidth ?? 0).toFixed(2)}px`);
+
       if (Math.abs((col.pixelWidth ?? 0) - actualWidth) > 1) {
         const next = [...columns];
         next[index] = {
@@ -74,7 +80,7 @@ export default function ColumnHeaderItem({
         setColumns(next);
       }
     }
-  }, [containerWidth, isDragging, columns, col.pixelWidth, index, setColumns, isOverlay]);
+  }, [containerWidth, isDragging, columns, col.pixelWidth, col.header, index, setColumns, isOverlay]);
 
   const widthPx = isDragging ? initialWidthPx.current : currentWidthPx;
 
@@ -90,7 +96,7 @@ export default function ColumnHeaderItem({
     userSelect: 'none',
     width: `${widthPx}px`,
     minWidth: '110px',
-    flexShrink: 1,
+    flexShrink: 0,
     opacity: isDragging ? 0 : 1,
     pointerEvents: isDragging ? 'none' : 'auto',
   };
@@ -108,13 +114,14 @@ export default function ColumnHeaderItem({
 
       if (newWidthPx < 110) newWidthPx = 110;
 
-      let newRatio = newWidthPx / containerWidth;
+      let newRatio = newWidthPx / (containerWidth);
+      let buttonRatio = 56 / containerWidth;
 
       const otherRatiosSum = columns.reduce((sum, col, i) => {
         if (i === index) return sum;
         return sum + (col.widthRatio ?? 0.1);
       }, 0);
-      const maxAllowed = 1 - otherRatiosSum;
+      const maxAllowed = 1 - otherRatiosSum - buttonRatio;
       if (newRatio > maxAllowed) newRatio = maxAllowed;
 
       const next = [...columns];
@@ -186,8 +193,8 @@ export default function ColumnHeaderItem({
       onPointerUp={handlePointerUp}
     >
       <div className="flex items-center justify-between w-full h-full">
-         {col?.key === 'tag' ? (
-          <TagFilterButton isOverlay={isOverlay} />
+          {col?.key === 'tag' ? (
+            <TagFilterButton isOverlay={isOverlay} />
         ) : isEditing ? (
           <input
             className="w-full px-2 py-1 rounded text-sm bg-gray-100 focus:outline-none"
@@ -200,7 +207,18 @@ export default function ColumnHeaderItem({
             autoFocus
           />
         ) : (
-          <div className='tr'>{col.header || '새 속성'}</div>
+          <div className="w-full justify-between items-center flex">
+            {col.header || '새 속성'} 
+            
+            {(sortKey === col.key && sortDirection === 'asc') ? (
+              <ChevronsDown className="ml-1 w-4 h-4 text-gray-500 inline-block"/>
+            ) : (sortKey === col.key && sortDirection === 'desc') ? ( 
+              <ChevronsUp className="ml-1 w-4 h-4 text-gray-500 inline-block"/>
+            ) : null}
+            
+            </div>
+
+            
         )} 
       </div>
 
@@ -211,16 +229,16 @@ export default function ColumnHeaderItem({
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize bg-transparent group hover:bg-blue-100 transition-colors z-10"
           >
-            <div
+            {/* <div
               className="absolute top-[-12px] right-[3px] translate-x-1/2 w-0 h-0 
-                        border-l-[9px] border-l-transparent 
-                        border-r-[9px] border-r-transparent 
-                        border-t-[9px] border-t-transparent
-                        group-hover:border-t-blue-100
-                        cursor-col-resize transition-all"
+                          border-l-[9px] border-l-transparent 
+                          border-r-[9px] border-r-transparent 
+                          border-t-[9px] border-t-transparent
+                          group-hover:border-t-blue-100
+                          cursor-col-resize transition-all"
               onMouseDown={handleMouseDown}
               onPointerDown={(e) => e.stopPropagation()}
-            ></div>
+            ></div> */}
           </div>
         </div>
       )}

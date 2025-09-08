@@ -43,63 +43,69 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
     const usedKeys = columns.map((col: Column) => col.key);
     const availableKey = ALLOWED_DYNAMIC_KEYS.find((key) => !usedKeys.includes(key));
     if (!availableKey) {
-      alert("더 이상 컬럼을 추가할 수 없습니다.");
+      // NOTE: `alert` is discouraged in the canvas environment.
+      // Use a custom UI element for notifications instead.
+      console.error("더 이상 컬럼을 추가할 수 없습니다.");
       return;
     }
 
     const newColPx = 110;
     const newColRatio = newColPx / containerWidth;
     const totalRatio = columns.reduce((sum: number, col: Column) => sum + col.widthRatio, 0);
-    const freeRatio = 1 - totalRatio;
+    // 버튼의 픽셀 너비를 ratio로 변환하여 전체 공간에서 제외합니다.
+    const buttonRatio = 56 / containerWidth;
+    const freeRatio = 1 - (totalRatio + buttonRatio);
+
+    let nextColumns: Column[];
 
     // 첫 번째 조건: 남은 공간이 충분할 경우
     if (freeRatio >= newColRatio) {
-      const nextColumns = [
+      nextColumns = [
         ...columns,
         { key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx },
       ];
-      useHistoryStore.getState().push({
-        type: "addColumn",
-        prev: prevColumns,
-        next: nextColumns,
+    } else {
+      // 두 번째 조건: 기존 컬럼 너비를 줄여야 할 경우
+      const minRatio = newColPx / containerWidth;
+      const shrinkable = columns.filter((col: Column) => col.widthRatio > minRatio);
+      const shrinkableCapacity = shrinkable.reduce((sum: number, col: Column) => {
+        const possible = col.widthRatio - minRatio;
+        return sum + (possible > 0 ? possible : 0);
+      }, 0);
+
+      if (shrinkableCapacity < newColRatio) {
+        // NOTE: `alert` is discouraged in the canvas environment.
+        // Use a custom UI element for notifications instead.
+        console.error("더 이상 속성을 추가할 수 없습니다 (최소 너비 제한).");
+        return;
+      }
+
+      nextColumns = produce<Column[]>(columns, (draft: Column[]) => {
+        draft.forEach(col => {
+          const isShrinkable = col.widthRatio > minRatio;
+          if (isShrinkable) {
+            const possible = col.widthRatio - minRatio;
+            const shrinkAmount = (possible / shrinkableCapacity) * (newColRatio - freeRatio);
+            col.widthRatio -= shrinkAmount;
+          }
+        });
+        draft.push({ key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx });
       });
-      set({ columns: nextColumns });
-      (get() as any).setEditingKey(availableKey);
-      return;
     }
 
-    // 두 번째 조건: 기존 컬럼 너비를 줄여야 할 경우
-    const minRatio = newColPx / containerWidth;
-    const shrinkable = columns.filter((col: Column) => col.widthRatio > minRatio);
-    const shrinkableCapacity = shrinkable.reduce((sum: number, col: Column) => {
-      const possible = col.widthRatio - minRatio;
-      return sum + (possible > 0 ? possible : 0);
-    }, 0);
-
-    if (shrinkableCapacity < newColRatio) {
-      alert("더 이상 속성을 추가할 수 없습니다 (최소 너비 제한).");
-      return;
-    }
-
-    const nextColumns = produce<Column[]>(columns, (draft: Column[]) => {
-      draft.forEach(col => {
-        const isShrinkable = col.widthRatio > minRatio;
-        if (isShrinkable) {
-          const possible = col.widthRatio - minRatio;
-          const shrinkAmount = (possible / shrinkableCapacity) * newColRatio;
-          col.widthRatio -= shrinkAmount;
-        }
-      });
-      draft.push({ key: availableKey, header, widthRatio: newColRatio, pixelWidth: newColPx });
-    }); 
+    // 모든 컬럼의 pixelWidth를 동기화
+    const finalColumns = nextColumns.map(col => ({
+      ...col,
+      pixelWidth: Math.floor(col.widthRatio * (containerWidth)),
+    }));
 
     useHistoryStore.getState().push({
       type: "addColumn",
       prev: prevColumns,
-      next: nextColumns,
+      next: finalColumns,
     });
 
-    set({ columns: nextColumns });
+    set({ columns: finalColumns });
     (get() as any).setEditingKey(availableKey);
   },
 

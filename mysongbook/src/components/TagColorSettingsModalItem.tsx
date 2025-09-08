@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSheetStore } from "@/stores/sheetStore";
 import { TagColor } from "@/stores/slices/tagSlice";
 import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ColumnEditorPanelItemProps {
   id: string;   
@@ -10,9 +11,11 @@ interface ColumnEditorPanelItemProps {
 }
   
   
-export default function TagColorSettingsModalItem(
-  { id, tagColor, isOverlay }: ColumnEditorPanelItemProps
-) {
+export default function TagColorSettingsModalItem({ 
+  id, 
+  tagColor, 
+  isOverlay 
+}: ColumnEditorPanelItemProps) {
   const sortable= isOverlay ? null : useSortable({ id });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -27,7 +30,7 @@ export default function TagColorSettingsModalItem(
       return;
     }
 
-    const isTagExist = tagColors.findIndex(item => item.tag === trimmed) !== -1;
+  const isTagExist = tagColors.findIndex(item => item.tag === trimmed) !== -1;
     if (isTagExist) {
       alert("이미 존재하는 태그입니다.");
       setIsEditing(false);
@@ -41,12 +44,27 @@ export default function TagColorSettingsModalItem(
     changeTagColor(tag, { [field]: value });
   };
 
+  const style = sortable
+    ? {
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: 'none',
+        opacity: sortable.isDragging ? 0 : 1,
+      }: {};
+
+  const dndProps = !isEditing && !isOverlay && sortable 
+    ? {
+        ref: sortable.setNodeRef,
+        ...sortable.attributes,
+        ...sortable.listeners,
+      }: {
+        ref: sortable?.setNodeRef,
+      };
+
   return (
     <div 
-      ref={ sortable?.setNodeRef}
-        {...sortable?.attributes}
-        {...sortable?.listeners}
-    className="flex items-center w-full mb-3">
+      style={style}
+      {...dndProps}
+      className="flex items-center w-full mb-3">
                 {/* 왼쪽 영역 */}
                 <div className="flex items-center gap-3 ml-3">
                       {isEditing ? (

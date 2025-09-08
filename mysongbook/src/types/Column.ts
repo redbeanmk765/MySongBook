@@ -5,5 +5,5 @@ export interface Column {
   isFixed?: boolean;
   isHidden?: boolean; // 숨김 여부
   widthRatio: number;       // 너비 (픽셀 단위)
-  pixelWidth: number; // 픽셀 단위 너비 (선택적)
+  pixelWidth?: number; // 픽셀 단위 너비 (선택적)
 }

@@ -168,7 +168,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
       <div
         ref={tableContentContainerRef}
         style={{ overflowX: "hidden", minWidth: "100%", paddingRight: 52  }}
-        className="px-6 min-h-[380px]"
+        className="px-6 min-h-[380px] border-t border-t-gray-200"
       >
         {slicedData.map((row, index) => ( 
           <Row
@@ -177,6 +177,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
             tagList={tagList}
             isEditable={isEditable}
             isLastRow={index === slicedData.length - 1}
+            isFirstRow={index === 0} 
           />
         ))}
       </div>
