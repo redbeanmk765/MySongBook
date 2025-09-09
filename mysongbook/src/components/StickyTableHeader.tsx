@@ -30,7 +30,7 @@ export function StickyTableHeader({
   return (
     <>
       <div ref={headerRef} className={headerClassName} style={headerStyle}>
-        <div className="px-6 flex overflow-x-hidden">{children}</div>
+        <div className="flex overflow-x-hidden border-b border-gray-300 ">{children}</div>
       </div>
       {isHeaderFixed && <div style={{ height: headerHeight }} />}
     </>

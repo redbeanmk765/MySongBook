@@ -182,7 +182,7 @@ export default function ColumnHeaderItem({
       {...listeners}
       className={cn(
         'relative flex items-center border-gray-300 bg-white text-sm',
-        'select-none px-2',
+        'select-none pl-1 pr-1',
         'transition-colors duration-150',
         'z-10',
         'flex-shrink',

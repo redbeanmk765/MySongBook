@@ -37,7 +37,7 @@ export function useStickyHeader(
 
   const headerStyle: React.CSSProperties = isHeaderFixed
     ? {
-        width: parentWidth,
+        width: `calc(${parentWidth}px - 8px)`,
         left: parentLeft,
         willChange: "transform, width",
         top: 64,
@@ -45,7 +45,7 @@ export function useStickyHeader(
     : {};
 
   const headerClassName = isHeaderFixed
-    ? "fixed z-10 bg-white border-b border-gray-300"
+    ? "fixed z-10 bg-white pl-2 "
     : "relative";
 
   return { headerRef, isHeaderFixed, headerHeight, headerStyle, headerClassName };

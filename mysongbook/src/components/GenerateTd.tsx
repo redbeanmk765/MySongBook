@@ -71,7 +71,7 @@
 
     return (
       <div className={'flex border-r min-w-0 text-left min-h-[38px] items-center '
-        + (isEditingTd ? "bg-gray-50" : "")}
+        + (isEditingTd ? "bg-gray-100 " : "")}
         style={{ width,  minWidth: '110px',}}>
         {isEditingTd ?  (
           isTagField ? (
@@ -91,13 +91,13 @@
               if (e.key === "Enter") updateValue(e.currentTarget.value);
             }}
             ref={inputRef}
-            className="flex w-full min-w-0 rounded h-8 overflow-hidden whitespace-nowrap text-ellipsis focus-visible:ring-gray-400"
+            className="flex w-full min-w-0 rounded h-8 overflow-hidden whitespace-nowrap text-ellipsis bg-gray-50 focus-visible:ring-gray-400"
           />
           )
         ) : (
           <span
             ref={spanRef}
-            className={"flex items-center text-left pl-4 pr-2 w-full h-full cursor-pointer whitespace-normal break-all hover:bg-gray-100 " }
+            className={"flex items-center text-left pl-4 pr-2 w-full h-full cursor-pointer truncate break-all hover:bg-gray-100 " }
             data-id={data.id}
             data-field={fieldName}
             tabIndex={0}

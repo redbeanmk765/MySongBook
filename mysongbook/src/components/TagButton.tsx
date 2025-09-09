@@ -67,7 +67,7 @@ export default function TagButton({ currentTag, tagList, onTagChange, onBlur }: 
         ref={buttonRef}
         type="button"
         //className="block w-full min-w-0 max-w-25 overflow-hidden whitespace-nowrap text-ellipsis text-left pl-4 h-[20px] hover:bg-gray-100 focus:outline-none"
-        className="inline-block ml-4 px-3 py-[3px] rounded-full text-xs font-medium "
+        className="inline-block ml-4 px-3 py-[3px] rounded-full text-xs font-medium  "
         style={{
             backgroundColor: tagColor?.backgroundColor,
             color: tagColor?.textColor,

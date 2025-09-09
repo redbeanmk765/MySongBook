@@ -109,7 +109,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
           >
             <div
               ref={containerRef}
-              className="flex w-full sticky top-16 md:top-24 z-10 bg-white"
+              className="flex sticky top-16 md:top-24 z-10 bg-white"
             >
               {columns.map((col, index) => (
                 col.isHidden ? null : (

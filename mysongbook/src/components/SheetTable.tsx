@@ -107,6 +107,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
     () => sortData(data, sortKey, sortDirection),
     [data, sortKey, sortDirection, tagColors]
   );
+  
 
   const filteredData = useMemo(() => {
     if (!selectedTag) return sortedData;
@@ -116,7 +117,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
   const slicedData = filteredData.slice(0, max);
 
   return (
-    <div className="overflow-x-hidden" ref={parentContainerRef}>
+    <div className="px-2 overflow-x-hidden" ref={parentContainerRef}>
       {/* 상단 타이틀 및 버튼 */}
       {/* <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center space-x-6">
@@ -167,8 +168,8 @@ export function SheetTable({ isEditable }: SheetTableProps) {
       {/* 테이블 내용 영역 */}
       <div
         ref={tableContentContainerRef}
-        style={{ overflowX: "hidden", minWidth: "100%", paddingRight: 52  }}
-        className="px-6 min-h-[380px] border-t border-t-gray-200"
+        style={{ overflowX: "hidden", minWidth: "100%", }}
+        className="min-h-[380px] "
       >
         {slicedData.map((row, index) => ( 
           <Row
