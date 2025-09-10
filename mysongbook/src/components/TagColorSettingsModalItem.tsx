@@ -3,6 +3,7 @@ import { useSheetStore } from "@/stores/sheetStore";
 import { TagColor } from "@/stores/slices/tagSlice";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import TagBadge from "./ui/TagBadge";
 
 interface ColumnEditorPanelItemProps {
   id: string;   
@@ -114,15 +115,7 @@ export default function TagColorSettingsModalItem({
 
       {/* 오른쪽 영역: ml-auto로 오른쪽 정렬 */}
       <div className="ml-auto mr-3 flex items-center justify-center w-20">
-        <div
-          className="inline-block px-3 py-[3px] rounded-full text-xs font-medium"
-          style={{
-            backgroundColor: tagColor.backgroundColor,
-            color: tagColor.textColor,
-          }}
-        >
-          {tagColor.tag}
-        </div>
+        <TagBadge text={tagColor.tag} backgroundColor={tagColor?.backgroundColor} textColor={tagColor?.textColor} />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
   import { RowData } from "@/types/RowData";
   import TagButton from "./TagButton";
   import { Input } from "@/components/ui/input";
+  import TagBadge from "@/components/ui/TagBadge";
   import { useSheetStore } from "@/stores/sheetStore";
 
   interface GenerateTdProps {
@@ -70,52 +71,35 @@
     };
 
     return (
-      <div className={'flex border-r min-w-0 text-left min-h-[38px] items-center '
+      <div className={'flex border-r min-w-0 text-left min-h-[36px] items-center '
         + (isEditingTd ? "bg-gray-100 " : "")}
-        style={{ width,  minWidth: '110px',}}>
-        {isEditingTd ?  (
-          isTagField ? (
-            <TagButton
-              currentTag={editedData[fieldName] as string}
-              tagList={tagList}
-              onTagChange={handleTagChange}
-              onBlur={handleTagBlur}
-            />
-          ) : (
+        style={{ width,  minWidth: '90px',}}>
+        {isTagField ? (
+          <TagButton
+            currentTag={editedData[fieldName] as string}
+            onTagChange={handleTagChange}
+            onBlur={handleTagBlur}
+          />
+        ) : isEditingTd ? (
           <Input
             type="text"
             name={nameString}
             defaultValue={editedData[fieldName] ?? ""}
             onBlur={(e) => updateValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") updateValue(e.currentTarget.value);
-            }}
+            onKeyDown={(e) => { if(e.key === "Enter") updateValue(e.currentTarget.value); }}
             ref={inputRef}
             className="flex w-full min-w-0 rounded h-8 overflow-hidden whitespace-nowrap text-ellipsis bg-gray-50 focus-visible:ring-gray-400"
           />
-          )
         ) : (
           <span
             ref={spanRef}
-            className={"flex items-center text-left pl-4 pr-2 w-full h-full cursor-pointer truncate break-all hover:bg-gray-100 " }
+            className="flex items-center text-left pl-2 pr-2 w-full h-full cursor-pointer truncate break-all hover:bg-gray-100"
             data-id={data.id}
             data-field={fieldName}
             tabIndex={0}
             onFocusCapture={() => setEditingCell({ rowId: data.id, field: fieldName })}
           >
-            {isTagField && tagColor ? (
-              <span
-                className="inline-block px-3 py-[3px] rounded-full text-xs font-medium "
-                style={{
-                  backgroundColor: tagColor.backgroundColor,
-                  color: tagColor.textColor,
-                }}
-              >
-                {editedData[fieldName]}
-              </span>
-            ) : (
-              editedData[fieldName]
-            )}
+            {editedData[fieldName]}
           </span>
         )}
       </div>

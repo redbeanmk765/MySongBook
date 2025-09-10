@@ -26,7 +26,7 @@ export default function Row({
   }, [data]);
 
   const totalContentWidth = useMemo(() => {
-    return (columns.reduce((acc, col) => acc + Math.max(col.pixelWidth || 110, 110), 0) + 80);
+    return (columns.reduce((acc, col) => acc + Math.max(col.pixelWidth || 90, 90), 0) + 80);
   }, [columns]);
 
   const rowClassName = clsx(
@@ -55,7 +55,7 @@ export default function Row({
           handleUpdate={updateRow}
           tagList={tagList}
           isEditable={isEditable}
-          pixelWidth={col.pixelWidth || 110}
+          pixelWidth={col.pixelWidth || 90}
         />
       )))}
       <div className="w-min-[56px]"></div>

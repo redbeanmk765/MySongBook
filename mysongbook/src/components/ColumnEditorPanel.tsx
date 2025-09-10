@@ -74,9 +74,9 @@ export default function ColumnEditorPanel({
     <div
       ref={panelRef}
       className={cn(
-        'absolute top-8 right-0 w-[260px] min-h-[320px] h-auto',
+        'absolute right-0 w-[260px] min-h-[320px] h-auto',
         'bg-white rounded-b-lg py-4 ',
-        'duration-500 border ease-in-out ',
+        'duration-500 border border-t-gray-300 ease-in-out ',
         'will-change-transform will-change-opacity',
         isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none'

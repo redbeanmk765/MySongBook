@@ -169,7 +169,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
          
         </DndContext>
 
-         <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} buttonRef={buttonRef}/>
+        <ColumnEditorPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} buttonRef={buttonRef}/>
       </div>
 
       

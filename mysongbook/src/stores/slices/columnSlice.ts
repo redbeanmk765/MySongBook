@@ -23,10 +23,10 @@ export interface ColumnSlice {
 
 export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, get) => ({
   columns: [
-    { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1, pixelWidth: 110 },
-    { key: 'singer', header: '가수', widthRatio: 0.12, pixelWidth: 110 },
-    { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 110 },
-    { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 110 },
+    { key: 'tag', header: '태그', isTag: true, isFixed: true, widthRatio: 0.1, pixelWidth: 90 },
+    { key: 'singer', header: '가수', widthRatio: 0.12, pixelWidth: 90 },
+    { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 90 },
+    { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 90},
   ],
   editingKey: null,
   setEditingKey: (key: string | null) => set({ editingKey: key }),
@@ -49,7 +49,7 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
       return;
     }
 
-    const newColPx = 110;
+    const newColPx = 90;
     const newColRatio = newColPx / containerWidth;
     const totalRatio = columns.reduce((sum: number, col: Column) => sum + col.widthRatio, 0);
     // 버튼의 픽셀 너비를 ratio로 변환하여 전체 공간에서 제외합니다.
@@ -158,8 +158,8 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
         col.key === key
           ? {
               ...col,
-              pixelWidth: Math.max(newWidth, 110),
-              widthRatio: Math.max(newWidth, 110) / window.innerWidth,
+              pixelWidth: Math.max(newWidth, 90),
+              widthRatio: Math.max(newWidth, 90) / window.innerWidth,
             }
           : col
       ),

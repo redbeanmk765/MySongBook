@@ -95,7 +95,7 @@ export default function ColumnHeaderItem({
     cursor: isDragging ? 'grabbing' : 'grab',
     userSelect: 'none',
     width: `${widthPx}px`,
-    minWidth: '110px',
+    minWidth: '90px',
     flexShrink: 0,
     opacity: isDragging ? 0 : 1,
     pointerEvents: isDragging ? 'none' : 'auto',
@@ -112,7 +112,7 @@ export default function ColumnHeaderItem({
       const deltaX = moveEvent.clientX - startX;
       let newWidthPx = startWidthPx + deltaX;
 
-      if (newWidthPx < 110) newWidthPx = 110;
+      if (newWidthPx < 90) newWidthPx = 90;
 
       let newRatio = newWidthPx / (containerWidth);
       let buttonRatio = 56 / containerWidth;
@@ -197,7 +197,7 @@ export default function ColumnHeaderItem({
             <TagFilterButton isOverlay={isOverlay} />
         ) : isEditing ? (
           <input
-            className="w-full px-2 py-1 rounded text-sm bg-gray-100 focus:outline-none"
+            className="flex w-full px-2 py-1 rounded text-sm bg-gray-100 focus:outline-none"
             value={tempHeader}
             onChange={(e) => setTempHeader(e.target.value)}
             onBlur={handleBlur}
@@ -207,7 +207,7 @@ export default function ColumnHeaderItem({
             autoFocus
           />
         ) : (
-          <div className="w-full justify-between items-center flex">
+          <div className="flex w-full h-[28px] pl-2  rounded justify-between items-center  hover:bg-gray-100">
             {col.header || '새 속성'} 
             
             {(sortKey === col.key && sortDirection === 'asc') ? (
