@@ -26,7 +26,7 @@ export default function sheet() {
         { "id": 6, "tag": "VOCALOID", "singer": "BTS2", "name": "好きだから", "memo": "TEST2" },
         { "id": 7, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
         { "id": 8, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" },
-        { "id": 9, "tag": "K", "singer": "BTS", "name": "Dynamite", "memo": "TEST" },
+        { "id": 9, "tag": "K", "singer": "BTS", "name": "Dynamite", "memo": "TEST" , "link": "https://www.youtube.com/watch?v=gdZLi9oWNZg"},
         { "id": 10, "tag": "K", "singer": "BTS2", "name": "好きだから", "memo": "TEST2" },
         { "id": 11, "tag": "K", "singer": "tt", "name": "123123", "memo": "yesy" },
         { "id": 12, "tag": "K", "singer": "가나다", "name": "가나다", "memo": "가나다" },

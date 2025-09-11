@@ -4,6 +4,7 @@
   import { Input } from "@/components/ui/input";
   import TagBadge from "@/components/ui/TagBadge";
   import { useSheetStore } from "@/stores/sheetStore";
+  import LinkManager from "./LinkManager";
 
   interface GenerateTdProps {
     data: RowData;
@@ -36,6 +37,7 @@
     const spanRef = useRef<HTMLSpanElement>(null);
 
     const isTagField = fieldName === 'tag';
+    const isLinkField = fieldName === 'link';
     const tagColor = isTagField ? getTagColor(editedData[fieldName] as string) : null;
 
 
@@ -49,6 +51,7 @@
     }, [isEditingTd]);
 
     const updateValue = (value: string) => {
+      console.log("updateValue called with value:", value);
       setEditingCell(null);
       setEditedData({ ...editedData, [nameString]: value });
       handleUpdate(data.id, { [fieldName]: value });
@@ -79,6 +82,11 @@
             currentTag={editedData[fieldName] as string}
             onTagChange={handleTagChange}
             onBlur={handleTagBlur}
+          />
+        ) : isLinkField ? (
+          <LinkManager 
+            link={editedData[fieldName] as string}
+            updateValue={updateValue}
           />
         ) : isEditingTd ? (
           <Input

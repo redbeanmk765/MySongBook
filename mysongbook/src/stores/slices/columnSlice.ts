@@ -27,6 +27,7 @@ export const createColumnSlice: StateCreator<any, [], [], ColumnSlice> = (set, g
     { key: 'singer', header: '가수', widthRatio: 0.12, pixelWidth: 90 },
     { key: 'name', header: '곡명', isFixed: true, widthRatio: 0.37, pixelWidth: 90 },
     { key: 'memo', header: '메모', widthRatio: 0.15, pixelWidth: 90},
+    { key: 'link', header: '링크', isFixed: true, widthRatio: 0.07, pixelWidth: 90 },
   ],
   editingKey: null,
   setEditingKey: (key: string | null) => set({ editingKey: key }),

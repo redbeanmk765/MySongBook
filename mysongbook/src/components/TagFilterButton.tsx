@@ -21,7 +21,12 @@ export default function TagFilterButton({ isOverlay = false }: TagFilterButtonPr
   const { selectedTag, setSelectedTag, setSortKey, setSortDirection } = useSheetStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  
   const tagColors = useSheetStore((state) => state.tagColors);
+  const currentTagColor = selectedTag 
+    ? tagColors.find(tag => tag.tag === selectedTag) 
+    : null;
+
 
   const handleSelectTag = (tag: string | null) => {
     if (tag === null) {
@@ -40,8 +45,8 @@ export default function TagFilterButton({ isOverlay = false }: TagFilterButtonPr
               selectedTag === null ? "" : ""
             }`}
           >
-            <span className="inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis">
-              {selectedTag === null ? '전체' : selectedTag}
+            <span className="flex w-full items-center overflow-hidden whitespace-nowrap text-ellipsis">
+              {selectedTag === null ? '전체' : <TagBadge text={selectedTag} backgroundColor={currentTagColor?.backgroundColor} textColor={currentTagColor?.textColor} />}
             </span>
             <BarsArrowDownIcon className="w-5 h-5 text-gray-700 ml-1" />
           </div>
