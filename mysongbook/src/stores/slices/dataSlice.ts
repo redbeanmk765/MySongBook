@@ -20,7 +20,6 @@ export const createDataSlice: StateCreator<any, [], [], DataSlice> = (set, get) 
   addRow: (newData) => {
     useHistoryStore.getState().push({ type: "addRow", row: newData });
     set((state: any) => ({ data: [...state.data, newData] }));
-    console.log(get().data);
   },
 
   updateRow: (id, updatedData) => {

@@ -67,9 +67,7 @@ export default function ColumnHeaderItem({
   useEffect(() => {
     if (!isOverlay && divRef.current) {
       const actualWidth = divRef.current.offsetWidth;
-      
-      // ✅ LOG: DOM 픽셀 값과 Zustand 상태 값을 비교
-      console.log(`[${col.header}] DOM Pixel: ${actualWidth.toFixed(2)}px, Zustand Pixel: ${(col.pixelWidth ?? 0).toFixed(2)}px`);
+
 
       if (Math.abs((col.pixelWidth ?? 0) - actualWidth) > 1) {
         const next = [...columns];

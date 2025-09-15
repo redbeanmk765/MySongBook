@@ -51,7 +51,7 @@
     }, [isEditingTd]);
 
     const updateValue = (value: string) => {
-      console.log("updateValue called with value:", value);
+
       setEditingCell(null);
       setEditedData({ ...editedData, [nameString]: value });
       handleUpdate(data.id, { [fieldName]: value });

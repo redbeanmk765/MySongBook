@@ -1,10 +1,11 @@
 "use client"
 
 import Header from "@/components/Header";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { RowData } from "@/types/RowData";
 import { useSheetStore } from "@/stores/sheetStore";
 import { SheetView } from "@/components/SheetView";
+import {OverlayScrollbarVertical} from "@/components/OverlayScrollbarVertical";
 
 
 export default function sheet() {
@@ -14,6 +15,7 @@ export default function sheet() {
     undo,
     redo,
   } = useSheetStore();
+  
 
   useEffect(() => {
     if (data.length === 0) {
@@ -40,6 +42,8 @@ export default function sheet() {
     }
   }, [data.length, setData]);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   // 키보드 이벤트 처리
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,9 +62,20 @@ export default function sheet() {
   }, [undo, redo]);
 
   return (
-    <div className="min-h-screen bg-[rgb(249,249,251)]">
-      <Header /> 
-      <SheetView />
+    <div className="h-screen flex flex-col bg-[rgb(249,249,251)]">
+
+        <div className="h-full relative">
+          <Header />
+           <div 
+              ref={scrollContainerRef}
+              className="h-full"
+            >
+              <SheetView/>  
+            </div>
+          <OverlayScrollbarVertical scrollRef={scrollContainerRef} />
+          
+
+      </div>
     </div>
 
     

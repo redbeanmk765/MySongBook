@@ -46,7 +46,7 @@ export type HookFormTypes = {
     }
 
     const onSubmit = (data: HookFormTypes) => {
-        console.log("Form submitted.", data)
+      
     };
 
     return (

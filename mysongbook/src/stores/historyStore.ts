@@ -28,7 +28,7 @@ export const useHistoryStore = create<HistoryStore>((set, get) => {
     },
 
     push: (log) => {
-      console.log("Pushing log:", log);
+
       set((state) => ({
         undoStack: [...state.undoStack, log],
         redoStack: [],

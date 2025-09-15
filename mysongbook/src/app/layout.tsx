@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" className={`${pretendard.variable}`}>
-      <body className={`${pretendard.className}`}>
+    <html lang="ko" className={`${pretendard.variable} h-full overflow-scroll`}>
+      <body className={`${pretendard.className} h-full `}>
           {children}       
       </body>
     </html>

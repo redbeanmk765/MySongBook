@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, forwardRef } from "react";
 import { useUIStore } from "@/stores/uiStore";
 import { SheetTable } from "./SheetTable";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 
 const BlockNoteEditor = dynamic(() => import("./BlockNoteEditor"), { ssr: false });
 
-export function SheetView() {
+export const SheetView = forwardRef<HTMLDivElement, {}>(function SheetView(props, ref) {
   const isAdmin = useUIStore((state) => state.isAdmin);
   const mode = useUIStore((state) => state.mode);
   const setMode = useUIStore((state) => state.setMode);
@@ -23,34 +23,23 @@ export function SheetView() {
 
   const isEditable = isAdmin && mode === "edit";
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   return (
-    <div className="mx-6 py-10">
+    <div className="mx-6 py-10 h-full flex flex-col">
       {/* 상단 에디터 */}
       <div className="mx-6 mb-8 p-6 rounded-2xl bg-white ">
         <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={isEditable} />
       </div>
 
-      {/* 제목 및 모드 전환 버튼 */}
-      {/* <div className="flex justify-between items-center  mb-4 px-6">
-        <h1 className="text-2xl font-bold">My Song Book</h1>
-        {isAdmin && (
-          <Button onClick={() => setMode(mode === "edit" ? "read" : "edit")}>
-            {mode === "edit" ? "읽기 모드로 전환" : "편집 모드로 전환"}
-          </Button>
-        )}
-      </div> */}
-
-      {/* ✅ scrollRef 내부에 Header + Table */}
-      <div className="relative bg-white rounded-2xl pt-8 mx-6 pl-8 pr-8">
-        <div ref={scrollRef} >
-          <div className="min-w-full">
-            <SheetTable isEditable={isEditable} />
-          </div>
+      {/* ✅ 이제 ref를 받아서 연결할 div */}
+      <div 
+        ref={ref} 
+        className="relative bg-white rounded-2xl pt-8 mx-6 pl-8 pr-8 flex-1"
+        style={{ scrollbarWidth: "none" }}
+      >
+        <div className="min-w-full">
+          <SheetTable isEditable={isEditable} />
         </div>
       </div>
-
     </div>
   );
-}
+});
