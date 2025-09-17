@@ -5,7 +5,9 @@ export function useStickyHeader(
   parentWidth: number,
   parentLeft: number,
   parentTop: number,
-  fixedOffset: number
+  fixedOffset: number,
+  scrollContainer: React.RefObject<HTMLDivElement>,
+  triggerRef: React.RefObject<HTMLDivElement>,
 ) {
   const headerRef = useRef<HTMLDivElement>(null);
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
@@ -16,31 +18,43 @@ export function useStickyHeader(
     setHeaderHeight(headerRef.current.offsetHeight);
   }, []);
 
+  // useEffect(() => {
+  //   let ticking = false;
+
+  //   const onScroll = () => {
+  //     if (!ticking) {
+  //       window.requestAnimationFrame(() => {
+  //         const scrollY = window.scrollY || window.pageYOffset;
+  //         const shouldBeFixed = scrollY >= parentTop - fixedOffset;
+  //         setIsHeaderFixed(shouldBeFixed);
+  //         ticking = false;
+  //       });
+  //       ticking = true;
+  //     }
+  //   };
+
+  //   window.addEventListener("scroll", onScroll);
+  //   return () => window.removeEventListener("scroll", onScroll);
+  // }, [parentTop, fixedOffset]);
+
   useEffect(() => {
-    let ticking = false;
+    if (!triggerRef.current || !scrollContainer.current) return;
 
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrollY = window.scrollY || window.pageYOffset;
-          const shouldBeFixed = scrollY >= parentTop - fixedOffset;
-          setIsHeaderFixed(shouldBeFixed);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHeaderFixed(!entry.isIntersecting),
+      { threshold: 0 }
+    );
 
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [parentTop, fixedOffset]);
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [scrollContainer, triggerRef]);
 
   const headerStyle: React.CSSProperties = isHeaderFixed
     ? {
         width: `calc(${parentWidth}px - 8px)`,
         left: parentLeft,
         willChange: "transform, width",
-        top: 64,
+        top: fixedOffset ,
       }
     : {};
 

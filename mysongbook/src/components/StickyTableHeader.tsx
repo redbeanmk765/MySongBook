@@ -9,6 +9,8 @@ interface StickyTableHeaderProps {
   fixedOffset: number;
   scrollLeft: number;
   children: React.ReactNode;
+  scrollContainer: React.RefObject<HTMLDivElement>;
+  triggerRef: React.RefObject<HTMLDivElement>;
 }
 
 export function StickyTableHeader({
@@ -18,6 +20,8 @@ export function StickyTableHeader({
   fixedOffset,
   scrollLeft,
   children,
+  scrollContainer,
+  triggerRef,
 }: StickyTableHeaderProps) {
   const {
     headerRef,
@@ -25,7 +29,7 @@ export function StickyTableHeader({
     headerHeight,
     headerStyle,
     headerClassName,
-  } = useStickyHeader(parentWidth, parentLeft, parentTop, fixedOffset);
+  } = useStickyHeader(parentWidth, parentLeft, parentTop, fixedOffset, scrollContainer, triggerRef);
 
   return (
     <>

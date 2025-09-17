@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Play } from 'lucide-react';
 
-interface HorizontalScrollbarProps {
+
+interface ScrollBarHorizontalProps {
   scrollRef: React.RefObject<HTMLDivElement>;
+  step?: number; // 화살표 클릭 시 이동할 거리
 }
 
-export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
+export function ScrollBarHorizontal({ scrollRef, step = 100 }: ScrollBarHorizontalProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const draggingOffset = useRef(0);
@@ -21,7 +24,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     if (!el) return;
     const scrollable = el.scrollWidth > el.clientWidth;
     setScrollLeft(el.scrollLeft);
-    setMaxScrollLeft(el.scrollWidth - el.clientWidth + 16);
+    setMaxScrollLeft(el.scrollWidth - el.clientWidth);
     setShowScrollbar(scrollable);
   }, [scrollRef]);
 
@@ -36,9 +39,7 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     });
     resizeObserver.observe(el);
 
-    const onWindowResize = () => {
-      requestAnimationFrame(updateScroll);
-    };
+    const onWindowResize = () => requestAnimationFrame(updateScroll);
     window.addEventListener("resize", onWindowResize);
 
     return () => {
@@ -91,7 +92,6 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
     const maxThumbLeft = trackRect.width - thumbWidthPx;
     const scrollRatio = maxThumbLeft > 0 ? posX / maxThumbLeft : 0;
     scrollRef.current.scrollLeft = scrollRatio * maxScrollLeft;
-    
   };
 
   const onMouseUp = () => {
@@ -109,38 +109,63 @@ export function HorizontalScrollbar({ scrollRef }: HorizontalScrollbarProps) {
   const scrollRatioVal = maxScrollLeft > 0 ? scrollLeft / maxScrollLeft : 0;
   const thumbLeft = scrollRatioVal * maxThumbLeft;
 
+  const scrollByStep = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const newScroll = scrollRef.current.scrollLeft + (direction === "left" ? -step : step);
+    scrollRef.current.scrollTo({ left: newScroll, behavior: "smooth" });
+  };
+
   if (!showScrollbar) return null;
 
   return (
     <div
       ref={trackRef}
-      className="opacity-0 hover:opacity-100 transition-opacity duration-200 ease-in-out"
+      className="transition-opacity duration-200 ease-in-out"
       style={{
         position: "fixed",
         bottom: 0,
         left: 0,
-        width: "calc(100vw - 6px)",
+        width: "calc(100vw - 12px)",
         height: 16,
-        backgroundColor: "rgba(255,255,255,1.0)",
-        borderTop: "1px solid #ccc", // 하단 가로줄
+
+        borderRadius: 10,
         zIndex: 9999,
         userSelect: "none",
+        display: "flex",
+        alignItems: "center",
+        padding: "0 10px",
       }}
     >
+      {/* 왼쪽 화살표 */}
+      <div
+        onClick={() => scrollByStep("left")}
+        className="cursor-pointer select-none w-[8px] h-[8px] top-[-100px] text-gray-600 hover:text-gray-800"
+        style={{}}
+      >
+        ◀
+      </div>
+
+      {/* thumb */}
       <div
         onMouseDown={onThumbMouseDown}
-        className="bg-[rgba(139,139,139,1.0)] hover:bg-[rgba(99,99,99,1.0)]"
+        className="bg-gray-500 hover:bg-gray-700"
         style={{
           position: "absolute",
           left: thumbLeft,
-          top: 2.5,
+          top: 3.5,
           width: thumbWidthPx,
-          height: "60%",
-          borderRadius: 8,
-          userSelect: "none",
+          height: "55%",
+          borderRadius: 8,  
           cursor: "pointer",
           transition: "background-color 0.15s ease-in-out",
         }}
+      />
+
+      {/* 오른쪽 화살표 */}
+      <Play
+        onClick={() => scrollByStep("right")}
+        className="cursor-pointer select-none w-[12px] h-[12px] text-gray-600 hover:text-gray-800 fill-gray-500 hover:fill-gray-700"
+        style={{ position: "absolute", right: 2, top: 1.5 }}
       />
     </div>
   );

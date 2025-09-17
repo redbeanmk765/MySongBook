@@ -24,20 +24,20 @@ export const SheetView = forwardRef<HTMLDivElement, {}>(function SheetView(props
   const isEditable = isAdmin && mode === "edit";
 
   return (
-    <div className="mx-6 py-10 h-full flex flex-col">
+    <div ref={ref} className="h-[calc(100vh-60px)] overflow-y-scroll flex flex-col px-6 py-10 ">
       {/* 상단 에디터 */}
-      <div className="mx-6 mb-8 p-6 rounded-2xl bg-white ">
+      <div className="mx-6 mb-8 p-6 rounded-2xl bg-white">
         <BlockNoteEditor content={noteBlocks} onChange={setNoteBlocks} editable={isEditable} />
       </div>
 
       {/* ✅ 이제 ref를 받아서 연결할 div */}
       <div 
-        ref={ref} 
+        
         className="relative bg-white rounded-2xl pt-8 mx-6 pl-8 pr-8 flex-1"
         style={{ scrollbarWidth: "none" }}
       >
         <div className="min-w-full">
-          <SheetTable isEditable={isEditable} />
+          <SheetTable isEditable={isEditable} scrollContainerRef={ref as React.RefObject<HTMLDivElement>} />
         </div>
       </div>
     </div>

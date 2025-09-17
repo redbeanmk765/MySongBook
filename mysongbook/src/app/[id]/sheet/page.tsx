@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { RowData } from "@/types/RowData";
 import { useSheetStore } from "@/stores/sheetStore";
 import { SheetView } from "@/components/SheetView";
-import {OverlayScrollbarVertical} from "@/components/OverlayScrollbarVertical";
+import { ScrollBarVertical } from "@/components/ScrollBarVertical";
 
 
 export default function sheet() {
@@ -62,23 +62,17 @@ export default function sheet() {
   }, [undo, redo]);
 
   return (
-    <div className="h-screen flex flex-col bg-[rgb(249,249,251)]">
+    <div className=" flex flex-col bg-[rgb(249,249,251)]">
+        <Header />
+        
+        <div className="relative flex-1 ">
 
-        <div className="h-full relative">
-          <Header />
-           <div 
-              ref={scrollContainerRef}
-              className="h-full"
-            >
-              <SheetView/>  
-            </div>
-          <OverlayScrollbarVertical scrollRef={scrollContainerRef} />
-          
+          <SheetView ref={scrollContainerRef} />
 
-      </div>
-    </div>
+        </div>
 
-    
+
+      </div>    
 
   );
 }

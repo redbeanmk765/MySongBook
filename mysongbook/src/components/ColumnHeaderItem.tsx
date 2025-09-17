@@ -58,6 +58,8 @@ export default function ColumnHeaderItem({
   const isEditing = col.key === editingKey;
   const [tempHeader, setTempHeader] = useState(col.header ?? '');
 
+
+
   useEffect(() => {
     if (isDragging) {
       initialWidthPx.current = currentWidthPx;
@@ -102,6 +104,7 @@ export default function ColumnHeaderItem({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+  
 
     const startX = e.clientX;
     const startWidthPx = containerWidth * widthRatio;

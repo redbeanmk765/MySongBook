@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-interface OverlayScrollbarVerticalProps {
+interface ScrollBarVerticalProps {
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
-export function OverlayScrollbarVertical({ scrollRef }: OverlayScrollbarVerticalProps) {
+export function ScrollBarVertical({ scrollRef }: ScrollBarVerticalProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const draggingOffset = useRef(0);
@@ -20,14 +20,18 @@ export function OverlayScrollbarVertical({ scrollRef }: OverlayScrollbarVertical
     const el = scrollRef.current;
     if (!el) return;
     const scrollable = el.scrollHeight > el.clientHeight;
+    console.log( el.scrollHeight, clientHeight);
     setScrollTop(el.scrollTop);
     setMaxScrollTop(el.scrollHeight - el.clientHeight + 16);
     setShowScrollbar(scrollable);
   }, [scrollRef]);
 
+
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+
     updateScroll();
     el.addEventListener("scroll", updateScroll);
 
@@ -116,10 +120,10 @@ export function OverlayScrollbarVertical({ scrollRef }: OverlayScrollbarVertical
       className="opacity-100 hover:opacity-100 transition-opacity duration-200 ease-in-out"
       style={{
         position: "fixed",
-        bottom: 0,
+        bottom: 6,
         right: 0,
-        height: "calc(100vh - 79px)",
-        width: 16,
+        height: "calc(100vh - 52px)",
+        width: 12,
         zIndex: 9999,
         userSelect: "none",
       }}

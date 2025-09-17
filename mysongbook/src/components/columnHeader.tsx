@@ -76,6 +76,7 @@ const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(
     const handleDragStart = (event: DragStartEvent) => {
       const id = event.active.id as string;
       const col = columns.find((col) => col.key === id);
+      //console.log('Drag started:', id, col);  // ✅ 추가
       setActiveColumn(col ?? null);
     };
 

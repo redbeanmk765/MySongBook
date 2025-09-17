@@ -7,7 +7,7 @@ import { PencilIcon } from "@heroicons/react/24/solid";
 import { useSheetStore } from "@/stores/sheetStore";
 import { sortData } from "@/utils/sortUtils";
 import ColumnHeader from "./ColumnHeader";
-import { HorizontalScrollbar } from "./HorizontalScrollBar";
+import {ScrollBarHorizontal} from "./ScrollBarHorizontal";
 import { StickyTableHeader } from "./StickyTableHeader";
 
 function useContainerMeasurements() {
@@ -72,9 +72,10 @@ function useContainerMeasurements() {
 
 interface SheetTableProps {
   isEditable: boolean;
+  scrollContainerRef: React.RefObject<HTMLDivElement>;
 }
 
-export function SheetTable({ isEditable }: SheetTableProps) {
+export function SheetTable({ isEditable, scrollContainerRef }: SheetTableProps) {
   const {
     data,
     selectedTag,
@@ -100,6 +101,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
   } = useContainerMeasurements();
 
   const columnHeaderRef = React.useRef<HTMLDivElement | null>(null);
+  const triggerRef = React.useRef<HTMLDivElement | null>(null);
 
   const tagList = getTagList();
 
@@ -152,14 +154,18 @@ export function SheetTable({ isEditable }: SheetTableProps) {
         )}
       </div> */}
 
+      <div ref={triggerRef} style={{ height: 1 }} />
+
       {/* 고정 헤더 */}
       <div>
         <StickyTableHeader
           parentWidth={parentWidth}
           parentLeft={parentLeft}
           parentTop={parentTop}
-          fixedOffset={64}
+          fixedOffset={48}
           scrollLeft={scrollLeft}
+          scrollContainer={scrollContainerRef}
+          triggerRef={triggerRef} 
         >
           <ColumnHeader ref={columnHeaderRef} scrollLeft={scrollLeft} />
         </StickyTableHeader>
@@ -195,7 +201,7 @@ export function SheetTable({ isEditable }: SheetTableProps) {
       )}
 
       {/* 커스텀 가로 스크롤바 */}
-      <HorizontalScrollbar scrollRef={tableContentContainerRef} />
+      <ScrollBarHorizontal scrollRef={tableContentContainerRef} />
 
       {filteredData.length > max && (
         <div className="mt-4 text-center">
